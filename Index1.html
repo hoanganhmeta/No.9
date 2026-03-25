@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Hacker Hoàng Anh</title>
+<title>𝐇𝐀𝐂𝐊𝐄𝐑 𝐇𝐨𝐚𝐧𝐠 𝐀𝐧𝐡</title>
 <meta name="theme-color" content="#000000" />
-<meta name="description" content="Hoàng Anh — HACKER Team" />
+<meta name="description" content="𝐇𝐨𝐚𝐧𝐠 𝐀𝐧𝐡 — 𝐇𝐀𝐂𝐊𝐄𝐑 𝐓𝐞𝐚𝐦" />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='50' font-size='52'%3E%F0%9F%9A%80%3C/text%3E%3C/svg%3E" />
 <style>
 :root{
@@ -16,7 +16,7 @@
 html,body{
   height:100%; margin:0; background:var(--bg); color:var(--fg);
   font-family:system-ui,Segoe UI,Inter,Roboto,Arial,sans-serif;
-  overflow: auto; /* cho phép cuộn trang */
+  overflow: auto;
 }
 .wrap{position:relative; z-index:2; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:28px}
 .shell{width:100%; max-width:1100px; display:grid; grid-template-columns:1.1fr .9fr; gap:26px}
@@ -35,14 +35,30 @@ html,body{
 .avatar img{width:100%; height:100%; object-fit:cover}
 .online{position:absolute; right:6px; bottom:6px; width:12px; height:12px; border-radius:50%; background:linear-gradient(135deg,var(--cyan),var(--vio)); box-shadow:0 0 10px var(--cyan)}
 
-.title h1{margin:0; font-size:1.6rem; letter-spacing:.3px; color:var(--cyan); text-shadow:0 0 14px currentColor; display:flex; align-items:center; gap:8px}
+.title h1{margin:0; font-size:1.6rem; letter-spacing:.3px; display:flex; align-items:center; gap:8px}
+/* Hiệu ứng 6 màu chuyển động cho tên */
+.name-glow {
+  background: linear-gradient(90deg, #00ffff, #3a86ff, #8a2be2, #ff006e, #ff9e00, #ff4d6d);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: colorMove 3s linear infinite;
+  text-shadow: none;
+}
+@keyframes colorMove {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
 .badge-verify{display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px}
 .badge-verify svg{display:block}
 
 .sub{color:#bfefff; opacity:.9}
+
 .badges{display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 6px}
-.badge{font-size:.9rem; padding:6px 10px; border-radius:10px; background:rgba(0,0,0,.25); border:1px solid rgba(0,255,255,.35); color:var(--fg)} /* Email & phone cùng màu */
-.badge a{color:inherit; text-decoration:none} /* Email không xanh */
+.badge{font-size:.9rem; padding:6px 10px; border-radius:10px; background:rgba(0,0,0,.25); border:1px solid rgba(0,255,255,.35); color:var(--fg)}
+.badge a{color:inherit; text-decoration:none}
 .bio{margin:12px 0 16px; color:#dfffff}
 
 .actions{display:grid; grid-template-columns:repeat(2,1fr); gap:10px}
@@ -62,6 +78,60 @@ html,body{
 
 #galaxy{position:fixed; top:0; left:0; width:100%; height:100%; z-index:0}
 
+/* ========== ĐỒNG HỒ GÓC PHẢI MÀN HÌNH ========== */
+.clock-corner {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(12px);
+  padding: 8px 16px;
+  border-radius: 40px;
+  border: 1px solid rgba(0, 255, 255, 0.4);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.clock-corner:hover {
+  transform: scale(1.05);
+  border-color: var(--cyan);
+  box-shadow: 0 0 25px rgba(0, 255, 255, 0.5);
+}
+.clock-time {
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+  background: linear-gradient(90deg, #00ffff, #3a86ff, #8a2be2, #ff006e, #ff9e00, #ff4d6d);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: colorMove 2.5s linear infinite;
+}
+.clock-label {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.6);
+  margin-left: 6px;
+  letter-spacing: 1px;
+}
+
+/* Responsive: trên mobile thu nhỏ hơn */
+@media (max-width: 768px) {
+  .clock-corner {
+    top: 12px;
+    right: 12px;
+    padding: 5px 12px;
+  }
+  .clock-time {
+    font-size: 1rem;
+  }
+  .clock-label {
+    font-size: 0.6rem;
+  }
+}
+
 /* Keyboard focus */
 :focus-visible{outline:2px dashed var(--cyan); outline-offset:4px}
 
@@ -69,22 +139,31 @@ html,body{
 @media (prefers-reduced-motion:reduce){
   .panel:hover,.avatar:hover{transform:none}
   .avatar::after{animation:none}
+  .name-glow, .clock-time { animation: none; background: #00ffff; -webkit-background-clip: text; background-clip: text; color: #00ffff; }
 }
 </style>
 </head>
 <body>
 <canvas id="galaxy" aria-hidden="true"></canvas>
+
+<!-- ĐỒNG HỒ THU NHỎ GÓC PHẢI MÀN HÌNH -->
+<div class="clock-corner" id="clockCorner" title="Thời gian thực">
+  <span class="clock-time" id="liveClock">--:--:--</span>
+  <span class="clock-label">⏰</span>
+</div>
+
 <div class="wrap">
   <div class="shell">
     <!-- Hồ sơ -->
     <section class="panel" aria-label="Hồ sơ">
       <div class="head">
         <div class="avatar" id="avatar" title="Nhấn để thả tim">
-          <img src="https://i.imgur.com/0Zv8mkK.jpeg" alt="Avatar" loading="lazy" />
+          <img src="https://i.imgur.com/1DDOX0Z.jpeg" alt="Avatar" loading="lazy" />
           <span class="online" aria-hidden="true"></span>
         </div>
         <div class="title">
-          <h1> Hoàng Anh
+          <h1>
+            <span class="name-glow">𝐇𝐨𝐚𝐧𝐠 𝐀𝐧𝐡</span>
             <span class="badge-verify" title="Verified">
               <svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path d="M12 2l2.3 1.3 2.6-.1 1.7 2 .1 2.6L20 10l1.7 2.2-.1 2.6-1.7 2-2.6-.1L12 22l-2.3-1.3-2.6.1-1.7-2-.1-2.6L4 12l-1.7-2.2.1-2.6 1.7-2 2.6.1L12 2z" fill="url(#g)"/>
@@ -96,7 +175,8 @@ html,body{
           <div class="sub">Coder • Reverse Eng • 0xSec</div>
         </div>
       </div>
-      <!-- Badges tách riêng, email cùng màu fg -->
+      
+      <!-- Badges -->
       <div class="badges">
         <span class="badge">📍 Thanh Hoá, Việt Nam</span>
         <span class="badge">☎ 0375562955</span>
@@ -126,7 +206,7 @@ html,body{
         <a class="tile" href="#" id="copyMail">📎 <strong>Copy Email</strong></a>
         <a class="tile" href="#" id="copyPhone">📞 <strong>Copy Phone</strong></a>
       </div>
-      <div class="footer">© 2026 • HOÀNG ANH | Tricker Team</div>
+      <div class="footer">© 2026 • 𝐇𝐨𝐚𝐧𝐠 𝐀𝐧𝐡 | 𝐇𝐀𝐂𝐊𝐄𝐑 𝐓𝐞𝐚𝐦</div>
     </section>
   </div>
 </div>
@@ -134,13 +214,29 @@ html,body{
 <div class="toast" id="toast">Đã copy!</div>
 
 <audio id="backgroundAudio" loop preload="auto" style="display:none">
-  <source src="https://pomf2.lain.la/f/l5nv41b6.mp3" type="audio/mpeg" />
+  <source src="https://files.catbox.moe/crvqiq.mp3" type="audio/mpeg" />
 </audio>
 
 <script>
+// ==================== ĐỒNG HỒ THỜI GIAN THỰC (Giờ Phút Giây) - GÓC PHẢI ====================
+function updateClock() {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+  const timeString = `${hours}:${minutes}:${seconds}`;
+  const clockElement = document.getElementById('liveClock');
+  if (clockElement) {
+    clockElement.textContent = timeString;
+  }
+}
+// Cập nhật mỗi giây
+updateClock();
+setInterval(updateClock, 1000);
+
 // Music toggle
-const audio=document.getElementById('backgroundAudio');
-const btn=document.getElementById('toggleMusicBtn');
+const audio = document.getElementById('backgroundAudio');
+const btn = document.getElementById('toggleMusicBtn');
 (async()=>{try{await audio.play();}catch{btn.textContent='🔈 Bật nhạc';}})();
 btn.addEventListener('click',async()=>{ if(audio.paused){await audio.play(); btn.textContent='🔊 Tắt nhạc';} else { audio.pause(); btn.textContent='🔈 Bật nhạc'; }});
 
